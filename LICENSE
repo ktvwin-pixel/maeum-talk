@@ -1,0 +1,40 @@
+5자토크 마음토크 (Maeum Talk)
+Copyright (c) 2026 KOREA CONTENTS LAB. All rights reserved.
+
+[한국어]
+
+이 저장소와 게임에 포함된 모든 내용(기획, 다섯 자 질문·답변 방식과 5장 10문항 구성,
+질문 문구, 예시 답, 안내 대사, 처방 문구, 분석·처방 체계, 캐릭터, 그래픽, 화면 디자인,
+배경 음악, 소스 코드와 데이터)은 KOREA CONTENTS LAB의 저작물입니다.
+
+이 저장소는 게임을 웹에 게시하기 위해 공개되어 있을 뿐이며, 오픈소스 라이선스를
+부여하지 않습니다. 소스 코드를 열람할 수 있다는 사실이 이용 허락을 뜻하지 않습니다.
+
+허용되는 이용
+  1. 개인이 https://ktvwin-pixel.github.io/maeum-talk/ 에서 게임을 플레이하는 것
+  2. 위 주소(링크)를 다른 사람에게 알리는 것
+
+KOREA CONTENTS LAB의 사전 서면 허락 없이 다음 행위를 금지합니다.
+  1. 전부 또는 일부의 복제, 전재, 배포, 공중송신, 재게시
+  2. 수정, 번안, 개작 및 2차적저작물 작성
+  3. 다른 웹사이트, 앱, 교육·상담 프로그램, 출판물에의 탑재 또는 인용
+  4. 유료 서비스, 강의, 워크숍 등 영리 목적의 이용
+  5. 저작자 표시(KOREA CONTENTS LAB)의 삭제 또는 변경
+  6. 이 저장소의 포크(fork)를 이용한 재배포
+
+무단 이용 시 대한민국 저작권법에 따라 게시 중단 요청, 손해배상 청구 등 민사상 조치와
+형사 고소(저작권법 제136조)를 할 수 있습니다.
+
+이용 허락 문의: KOREA CONTENTS LAB
+
+[English]
+
+All content in this repository and game - including its concept, the five-character
+question-and-answer format, question texts, dialogue, prescriptions, analysis logic,
+characters, graphics, design, music, source code and data - is the copyrighted work
+of KOREA CONTENTS LAB.
+
+This repository is public only to host the game on the web. No open-source license
+is granted. You may play the game at the URL above and share the link. Any copying,
+redistribution, modification, derivative works, embedding in other services, or
+commercial use without prior written permission from KOREA CONTENTS LAB is prohibited.

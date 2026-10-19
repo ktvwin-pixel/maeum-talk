@@ -3,9 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="다섯 자로 묻고 다섯 자로 답하는 마음 상담 게임">
+<meta name="description" content="다섯 자로 묻고 다섯 자로 답하는 마음 상담 게임 · KOREA CONTENTS LAB">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<!--
+  5자토크 마음토크
+  Copyright (c) 2026 KOREA CONTENTS LAB. All rights reserved.
+  이 파일의 기획, 질문 체계, 분석 로직, 문구, 그래픽, 음악, 소스 코드는 KOREA CONTENTS LAB의 저작물입니다.
+  사전 서면 허락 없이 복제, 배포, 개작, 전재, 상업적 이용을 할 수 없습니다. (대한민국 저작권법)
+-->
 <title>5자토크 마음토크</title>
+<meta name="author" content="KOREA CONTENTS LAB">
+<meta name="copyright" content="© 2026 KOREA CONTENTS LAB. All rights reserved.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <style>
@@ -130,7 +138,16 @@ input[type=text],input[type=email]{background:var(--night);border:2px solid var(
 .sess summary::-webkit-details-marker{display:none}
 .sess summary b{font-family:var(--display);font-weight:400;color:var(--lantern)}
 .sess .inner{padding:0 12px 12px}
-.foot{font-size:12px;color:var(--muted);text-align:center}
+.brandbox{display:flex;flex-direction:column;gap:0}
+.byline{font-family:var(--display);font-size:11px;letter-spacing:.22em;color:var(--mint);margin-top:-2px}
+.foot{font-size:12px;color:var(--muted);text-align:center;display:flex;flex-direction:column;gap:4px;align-items:center;border-top:1px dashed var(--line);padding-top:14px}
+.foot .kcl{font-family:var(--display);letter-spacing:.2em;color:var(--ink);font-size:13px}
+.linkbtn{background:none;border:0;color:var(--mint);text-decoration:underline;font-size:13px;padding:2px 4px}
+.legal h2{font-size:22px;color:var(--lantern)}
+.legal h3{font-size:16px;color:var(--mint)}
+.legal ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px;font-size:15px}
+.legal p{font-size:15px}
+.legal .sect{display:flex;flex-direction:column;gap:6px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -138,7 +155,7 @@ input[type=text],input[type=email]{background:var(--night);border:2px solid var(
 
 <div class="wrap">
   <header class="top">
-    <h1 class="brand">5자토크<span>마음토크</span></h1>
+    <div class="brandbox"><h1 class="brand">5자토크<span>마음토크</span></h1><p class="byline">KOREA CONTENTS LAB</p></div>
     <button id="bgm" class="bgm" aria-pressed="false" type="button"><i><b></b><b></b><b></b></i><span>BGM 꺼짐</span></button>
   </header>
 
@@ -210,7 +227,69 @@ input[type=text],input[type=email]{background:var(--night);border:2px solid var(
   <!-- 기록 -->
   <section class="screen" id="s-hist" hidden></section>
 
-  <p class="foot">이 게임은 마음을 들여다보는 놀이예요. 전문 상담이나 치료를 대신하지 않아요.</p>
+  <!-- 저작권·이용 안내 -->
+  <section class="screen" id="s-legal" hidden>
+    <div class="card legal">
+      <span class="eyebrow">시행일 2026년 10월 19일</span>
+      <h2>저작권 및 이용 안내</h2>
+      <div class="sect">
+        <h3>저작권자</h3>
+        <p>‘5자토크 마음토크’(이하 “이 게임”)의 저작권은 <b>KOREA CONTENTS LAB</b>에 있습니다. 이 게임은 대한민국 저작권법과 베른협약 등 국제 조약에 따라 보호받습니다.</p>
+      </div>
+      <div class="sect">
+        <h3>보호 대상</h3>
+        <ul>
+          <li>다섯 자 질문·다섯 자 답변 방식과 5장 10문항 구성의 기획 및 표현</li>
+          <li>모든 질문 문구, 예시 답, 안내 대사, 처방 문구(5자 처방 포함)와 조언 글</li>
+          <li>마음 날씨·마음 지도·필요 진단으로 이어지는 분석 및 처방 체계</li>
+          <li>캐릭터(등불지기 토리 등), 픽셀 그래픽, 화면 디자인, 배경 음악</li>
+          <li>소스 코드와 데이터 일체</li>
+        </ul>
+      </div>
+      <div class="sect">
+        <h3>허용되는 이용</h3>
+        <ul>
+          <li>개인이 이 주소에서 게임을 플레이하는 것</li>
+          <li>게임 주소(링크)를 다른 사람에게 알리는 것</li>
+          <li>본인의 결과 화면을 개인적으로 보관하는 것</li>
+        </ul>
+      </div>
+      <div class="sect">
+        <h3>금지되는 이용</h3>
+        <p>KOREA CONTENTS LAB의 사전 서면 허락 없이 다음 행위를 할 수 없습니다.</p>
+        <ul>
+          <li>게임 전체나 일부(질문 체계, 문구, 그래픽, 음악, 코드)를 복제·전재·배포하는 행위</li>
+          <li>이 게임을 바탕으로 수정·번안·개작하거나 2차적저작물을 만드는 행위</li>
+          <li>다른 웹사이트, 앱, 교육·상담 프로그램, 출판물에 탑재하거나 인용하는 행위</li>
+          <li>유료 서비스, 강의, 워크숍 등 영리 목적으로 이용하는 행위</li>
+          <li>저작자 표시(KOREA CONTENTS LAB)를 지우거나 바꾸는 행위</li>
+        </ul>
+      </div>
+      <div class="sect">
+        <h3>위반 시 조치</h3>
+        <p>무단 이용이 확인되면 KOREA CONTENTS LAB은 게시 중단 요청, 손해배상 청구 등 민사상 조치와 함께 저작권법 제136조에 따른 형사 고소를 할 수 있습니다. 같은 조항은 저작재산권 침해에 대해 5년 이하의 징역 또는 5천만 원 이하의 벌금을 정하고 있습니다.</p>
+      </div>
+      <div class="sect">
+        <h3>이용 허락 문의</h3>
+        <p>교육, 기관 상담, 공동 연구 등으로 이 게임을 쓰고 싶다면 KOREA CONTENTS LAB에 먼저 서면으로 허락을 받아 주세요.</p>
+      </div>
+      <div class="sect">
+        <h3>개인정보와 면책</h3>
+        <ul>
+          <li>입력한 가명과 답변은 서버로 보내지 않고, 플레이한 기기의 브라우저에만 저장됩니다.</li>
+          <li>이 게임은 마음을 돌아보는 도구이며 의학적 진단, 전문 상담, 치료를 대신하지 않습니다.</li>
+        </ul>
+      </div>
+      <button class="soft" id="legalBack" type="button">돌아가기</button>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span class="kcl">KOREA CONTENTS LAB</span>
+    <span>© 2026 KOREA CONTENTS LAB. All rights reserved. 무단 복제·배포·개작 금지</span>
+    <button class="linkbtn" id="legalOpen" type="button">저작권 및 이용 안내</button>
+    <span>이 게임은 전문 상담이나 치료를 대신하지 않아요.</span>
+  </footer>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -640,7 +719,7 @@ function sessionRecord(){
 function updateSession(){const sess=store.get('mt5.sessions',[]);const i=sess.findIndex(s=>s.id===S.sessionId);if(i>-1){sess[i]=sessionRecord();store.set('mt5.sessions',sess)}}
 function resultText(){
   const k=needKey(),N=NEED[k],R=S.result;
-  return `[5자토크 마음토크] ${profile.name}님의 결과 (${new Date().toLocaleDateString('ko-KR')})\nID ${profile.id}\n\n마음 날씨: ${R.wx.name}\n지금 필요한 것: ${DIM[k]} — ${N.title}\n5자 처방: ${N.rx}\n\n실천 세 가지\n${N.acts.map((a,i)=>`${i+1}. ${a}`).join('\n')}\n\n${AGE_TIP[profile.age]}\n${JOB_TIP[profile.job]}\n\n나의 다섯 자\n${S.answers.map(x=>`${x.q} → ${x.skipped?'(건너뜀)':x.a}`).join('\n')}`;
+  return `[5자토크 마음토크] ${profile.name}님의 결과 (${new Date().toLocaleDateString('ko-KR')})\nID ${profile.id}\n\n마음 날씨: ${R.wx.name}\n지금 필요한 것: ${DIM[k]} — ${N.title}\n5자 처방: ${N.rx}\n\n실천 세 가지\n${N.acts.map((a,i)=>`${i+1}. ${a}`).join('\n')}\n\n${AGE_TIP[profile.age]}\n${JOB_TIP[profile.job]}\n\n나의 다섯 자\n${S.answers.map(x=>`${x.q} → ${x.skipped?'(건너뜀)':x.a}`).join('\n')}\n\n— 5자토크 마음토크 · © 2026 KOREA CONTENTS LAB. All rights reserved.\nhttps://ktvwin-pixel.github.io/maeum-talk/`;
 }
 function renderResult(){
   const R=S.result,k=needKey(),N=NEED[k];
@@ -744,6 +823,16 @@ function renderHist(){
   $('#hBack').onclick=renderTitle;
   show('hist');
 }
+
+/* ---------- 저작권 안내 ---------- */
+let backTo='title';
+$('#legalOpen').onclick=()=>{if(S.screen!=='legal')backTo=S.screen;show('legal')};
+$('#legalBack').onclick=()=>{
+  if(backTo==='title')renderTitle();
+  else if(backTo==='hist')renderHist();
+  else show(backTo);
+};
+try{console.info('%c5자토크 마음토크 © 2026 KOREA CONTENTS LAB. All rights reserved.\n무단 복제·배포·개작을 금지합니다. (대한민국 저작권법)','color:#f2b84b;font-weight:bold')}catch(e){}
 
 renderTitle();
 })();
