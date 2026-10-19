@@ -334,7 +334,8 @@ input[type=text],input[type=email]{background:var(--night);border:2px solid var(
       </div>
       <div class="sect">
         <h3>이용 허락 문의</h3>
-        <p>교육, 기관 상담, 공동 연구 등으로 이 게임을 쓰고 싶다면 KOREA CONTENTS LAB에 먼저 서면으로 허락을 받아 주세요.</p>
+        <p>교육, 기관 상담, 공동 연구 등으로 이 게임을 쓰고 싶다면 아래 메일로 KOREA CONTENTS LAB에 먼저 서면 허락을 받아 주세요.</p>
+        <div class="field" style="align-items:center"><span class="num" id="lmail" style="font-family:var(--display);font-size:18px;color:var(--lantern);user-select:all;word-break:break-all;flex:1;min-width:0">2025koreacl@gmail.com</span><button class="soft" id="lmailCopy" type="button" style="font-size:15px;padding:8px 12px">주소 복사</button></div>
       </div>
       <div class="sect">
         <h3>개인정보와 면책</h3>
@@ -350,6 +351,7 @@ input[type=text],input[type=email]{background:var(--night);border:2px solid var(
   <footer class="foot">
     <span class="kcl">KOREA CONTENTS LAB</span>
     <span>© 2026 KOREA CONTENTS LAB. All rights reserved. 무단 복제·배포·개작 금지</span>
+    <span>이용 허락 문의 <span style="user-select:all">2025koreacl@gmail.com</span></span>
     <button class="linkbtn" id="legalOpen" type="button">저작권 및 이용 안내</button>
     <span>이 게임은 전문 상담이나 치료를 대신하지 않아요.</span>
   </footer>
@@ -895,6 +897,7 @@ $('#legalBack').onclick=()=>{
   else if(backTo==='hist')renderHist();
   else show(backTo);
 };
+$('#lmailCopy').onclick=async()=>{try{await navigator.clipboard.writeText('2025koreacl@gmail.com');toast('메일 주소를 복사했어요')}catch(e){const r=document.createRange();r.selectNodeContents($('#lmail'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('선택된 주소를 복사해 주세요')}};
 try{console.info('%c5자토크 마음토크 © 2026 KOREA CONTENTS LAB. All rights reserved.\n무단 복제·배포·개작을 금지합니다. (대한민국 저작권법)','color:#f2b84b;font-weight:bold')}catch(e){}
 
 renderTitle();
