@@ -148,6 +148,69 @@ input[type=text],input[type=email]{background:var(--night);border:2px solid var(
 .legal ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px;font-size:15px}
 .legal p{font-size:15px}
 .legal .sect{display:flex;flex-direction:column;gap:6px}
+/* ===== 기기별 화면 최적화 ===== */
+/* 작은 스마트폰 (≤360px) */
+@media (max-width:360px){
+  body{font-size:15px}
+  .brand{font-size:21px}.brand span{font-size:15px}
+  .tiles{gap:5px}
+  .tile{width:clamp(40px,15vw,52px);font-size:22px}
+  .primary,.ghost,.soft{font-size:16px;padding:11px 12px}
+  .log li{grid-template-columns:5.6em 1fr}
+}
+/* 손가락 조작 기기: 누르기 쉬운 크기 */
+@media (pointer:coarse){
+  .chip{min-height:40px}
+  .primary,.ghost,.soft{min-height:48px}
+  .linkbtn{min-height:36px}
+}
+/* 태블릿 세로 (768px~) */
+@media (min-width:768px){
+  body{font-size:17px;padding-block:24px 56px}
+  .wrap{max-width:760px;gap:18px}
+  .brand{font-size:28px}.brand span{font-size:19px}
+  .byline{font-size:12px}
+  .card{padding:22px;gap:14px}
+  .tiles{gap:12px}
+  .tile{width:76px;font-size:38px;border-radius:10px}
+  #say{font-size:17px}
+  .lead{font-size:18px}
+  .wx canvas{width:80px;height:80px}
+  .wx h2{font-size:30px}
+  .need h2{font-size:28px}
+  .bar{font-size:15px}
+  .bar .tr{height:14px}
+}
+/* PC·태블릿 가로·스마트폰 가로: 왼쪽 무대 고정 + 오른쪽 대화판 */
+@media (min-width:1024px), (orientation:landscape) and (max-height:540px) and (min-width:600px){
+  .wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:28px;row-gap:16px;align-items:start;max-width:1180px}
+  .top,.foot{grid-column:1/-1}
+  .stage-box{grid-column:1;grid-row:2;position:sticky;top:calc(16px + env(safe-area-inset-top,0px))}
+  .screen{grid-column:2;grid-row:2;min-width:0}
+  .foot{grid-row:3}
+  .bubble:before{top:18px;left:-10px;right:auto;border:10px solid transparent;border-right-color:var(--ink);border-left:0}
+  .steps{grid-template-columns:1fr}
+}
+/* PC 넓은 화면 */
+@media (min-width:1024px){
+  .tile{width:72px;font-size:36px}
+  .stage-box{border-width:4px;border-radius:12px}
+}
+@media (min-width:1440px){
+  body{font-size:18px}
+  .wrap{max-width:1320px;column-gap:40px}
+  .tile{width:80px;font-size:40px}
+}
+/* 스마트폰 가로: 높이가 낮아 여백과 글자를 줄임 */
+@media (orientation:landscape) and (max-height:540px) and (min-width:600px){
+  body{padding-block:8px 24px;font-size:15px}
+  .wrap{column-gap:18px;row-gap:10px}
+  .brand{font-size:20px}.brand span{font-size:15px}
+  .card{padding:12px;gap:10px}
+  .tile{width:clamp(38px,6vw,52px);font-size:clamp(20px,3.2vw,28px)}
+  #say{min-height:2.4em;font-size:15px}
+  .primary,.ghost,.soft{font-size:16px;padding:9px 12px;min-height:42px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
