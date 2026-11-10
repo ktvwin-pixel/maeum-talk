@@ -448,7 +448,7 @@ function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');c
 
 /* ---------- Data ---------- */
 const GENDERS=['Female','Male','Prefer not to say'];
-const AGES=['20','30','40','50','60','70'];
+const AGES=['10','20','30','40','50','60','70'];
 const JOBS=['Student / job seeker','Office worker','Self-employed','Professional','Public sector / education','Service / sales','Trades / technical','Arts / freelance','Homemaker / caregiver','Retired / taking a break'];
 
 const Q={
@@ -500,6 +500,7 @@ const JOBQ={
   'Retired / taking a break':{q:'Do days feel long lately',line:'Do your days feel long lately?',ex:['Days feel way too long','They feel just about right','There is nothing to do']}
 };
 const AGEQ={
+  teen:{q:'Your dream for the future',line:'What do you dream of becoming?',tag:'want',ex:['To become a kind teacher','I do not know yet','Make videos people love watching']},
   young:{q:'What was your childhood dream',line:'What did you dream of being as a kid?',tag:'want',ex:['To become a famous writer','Simply to live life well','I still do not know']},
   mid:{q:"What's your me time lately",line:'What do you do just for yourself these days?',tag:'want',ex:['Just a walk, nothing more','Nothing for myself at all','One cup of coffee alone']},
   old:{q:'What brings you joy daily',line:'What is the little joy of your day?',tag:'want',ex:['Spending time with my grandkids','Tending my little vegetable garden','Watching my favorite TV shows']}
@@ -545,6 +546,7 @@ const NEED={
   body:{title:'Caring for your body first',rx:'Take care of your body',acts:['Drink a glass of water and stretch for 5 minutes','Book the doctor’s visit or checkup you’ve been putting off','Keep a steady time for going to sleep and waking up']}
 };
 const AGE_TIP={
+  '10':'As a teen, friendships and school can shake your heart a lot. When things feel hard, tell one adult you trust, like a parent or teacher.',
   '20':'In your 20s, comparing yourself to others can be a big source of stress. Today, compare yourself with yesterday’s you, not with anyone else.',
   '30':'This is a season when responsibilities pile up. Put one slot for “a promise to myself” in your calendar first.',
   '40':'Looking after everyone makes it easy to push yourself to the back. Set aside a fixed time for yourself once a week.',
@@ -576,7 +578,8 @@ const OUTFIT={
   'Homemaker / caregiver':{top:'#e39bb0',pants:'#3a3f5c',inner:'#fff3f0'},
   'Retired / taking a break':{top:'#7d8a5a',pants:'#3b3a35',acc:'cane'}
 };
-const HAIR={'20':'#3b2a24','30':'#2e211c','40':'#3a2b22','50':'#55483f','60':'#9a9aa4','70':'#dcdce2'};
+const HAIR={'10':'#2a1d18','20':'#3b2a24','30':'#2e211c','40':'#3a2b22','50':'#55483f','60':'#9a9aa4','70':'#dcdce2'};
+const ageLabel=a=>a==='10'?'Under 20':a+'s';
 const SITE='https://ktvwin-pixel.github.io/maeum-talk/en/';
 
 /* ---------- State (separate storage keys from the Korean edition) ---------- */
@@ -795,7 +798,7 @@ $('#goHist').onclick=()=>{initAudio();renderHist()};
 const ADJ=['Quiet','Sparkling','Easygoing','Brave','Cozy','Dawn','Little','Steady','Quirky','Gentle'];
 const NOUN=['Whale','Fox','Snail','Sparrow','Pine','Lighthouse','Cloud','Owl','Cat','Dandelion'];
 function buildChips(){
-  const opts={gender:GENDERS.map(v=>[v,v]),age:AGES.map(v=>[v,v+'s']),job:JOBS.map(v=>[v,v])};
+  const opts={gender:GENDERS.map(v=>[v,v]),age:AGES.map(v=>[v,ageLabel(v)]),job:JOBS.map(v=>[v,v])};
   document.querySelectorAll('#s-profile .chips').forEach(box=>{
     const k=box.dataset.g;
     box.innerHTML=opts[k].map(([v,l])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${draft[k]===v}">${l}</button>`).join('');
@@ -813,7 +816,7 @@ $('#goTalk').onclick=()=>{
 };
 
 /* ---------- Game ---------- */
-function ageKey(a){return +a<=30?'young':+a<=50?'mid':'old'}
+function ageKey(a){return +a<20?'teen':+a<=30?'young':+a<=50?'mid':'old'}
 function buildRounds(p){
   const job={...JOBQ[p.job],tag:'job'};
   // At least three reflective "what are you ...ing" questions per game: one fixed each from Ch.2, 3, 4
@@ -1011,7 +1014,7 @@ function drawWx(kind){
 /* ---------- History ---------- */
 function renderHist(){
   const sess=store.get('mt5en.sessions',[]);
-  const head=profile.id?`<div class="card"><div class="idcard"><div><span class="eyebrow">My unique ID</span><div class="id">${profile.id}</div><p class="muted">${esc(profile.name)} · ${profile.gender} · ${profile.age}s · ${profile.job}</p></div>
+  const head=profile.id?`<div class="card"><div class="idcard"><div><span class="eyebrow">My unique ID</span><div class="id">${profile.id}</div><p class="muted">${esc(profile.name)} · ${profile.gender} · ${ageLabel(profile.age)} · ${profile.job}</p></div>
     <div class="stats"><span><b>${visits}</b>Visits</span><span><b>${sess.length}</b>Sessions</span><span><b>${sess.filter(s=>s.verified).length}</b>Confirmed</span></div></div></div>`:
     `<div class="card"><p>You don’t have a character yet. Tap Start and you’ll get a unique ID.</p></div>`;
   const list=sess.length?sess.map((s,i)=>{const d=new Date(s.date);

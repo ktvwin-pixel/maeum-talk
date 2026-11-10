@@ -329,7 +329,7 @@ input::placeholder{color:#b7aeb6}
     <div class="alert" id="talkAlert" hidden>
       <h3>지금 많이 힘들다면</h3>
       <p>혼자 견디지 않아도 돼요. 24시간 이야기를 들어 주는 곳이 있어요.</p>
-      <p class="num">자살예방상담전화 109 · 정신건강위기상담 1577-0199</p>
+      <p class="num">자살예방상담전화 109 · 정신건강위기상담 1577-0199 · 청소년상담 1388</p>
     </div>
     <div class="card">
       <div class="tiles q" id="qtiles"></div>
@@ -435,7 +435,7 @@ function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');c
 
 /* ---------- 데이터 ---------- */
 const GENDERS=['여성','남성','밝히지 않음'];
-const AGES=['20','30','40','50','60','70'];
+const AGES=['10','20','30','40','50','60','70'];
 const JOBS=['학생·취준','직장인','자영업','전문직','공무원·교육','서비스·판매','생산·기술','예술·프리랜서','주부·돌봄','은퇴·쉬는 중'];
 
 const Q={
@@ -487,6 +487,7 @@ const JOBQ={
   '은퇴·쉬는 중':{q:'하루는 길어',line:'요즘 하루는 길게 느껴져?',ex:['너무 길어요','딱 적당해요','할게 없어요']}
 };
 const AGEQ={
+  teen:{q:'되고 싶은 것',line:'커서 되고 싶은 것은?',tag:'want',ex:['선생님이요','아직 몰라요','유튜버 할래']},
   young:{q:'꿈이 뭐였어',line:'어릴 적 꿈은 뭐였어?',tag:'want',ex:['작가였어요','그냥 잘살기','아직 몰라요']},
   mid:{q:'나를 위한건',line:'요즘 나를 위해 하는 건?',tag:'want',ex:['산책 정도요','하나도 없어','커피 한잔요']},
   old:{q:'요즘의 낙은',line:'요즘 하루의 낙은 뭐예요?',tag:'want',ex:['손주 보는것','텃밭 가꾸기','티비 보기요']}
@@ -530,6 +531,7 @@ const NEED={
   body:{title:'몸부터 돌보기',rx:'몸부터 챙겨',acts:['물 한 잔 마시고 5분 스트레칭','미뤄 둔 병원이나 건강검진 예약하기','잠드는 시간과 일어나는 시간 일정하게 맞추기']}
 };
 const AGE_TIP={
+  '10':'10대에는 친구 관계와 성적이 마음을 크게 흔들 수 있어요. 힘든 마음은 부모님, 선생님처럼 믿을 만한 어른 한 명에게 꼭 이야기해 보세요.',
   '20':'20대에는 남과의 비교가 큰 스트레스가 되기 쉬워요. 오늘은 남이 아니라 어제의 나와 비교해 보세요.',
   '30':'해야 할 일이 몰리는 시기예요. 일정표에 "나와의 약속" 한 칸을 먼저 넣어 두세요.',
   '40':'모두를 챙기느라 나는 뒤로 밀리기 쉬운 때예요. 일주일에 한 번, 혼자만의 시간을 고정해 보세요.',
@@ -561,7 +563,7 @@ const OUTFIT={
   '주부·돌봄':{top:'#e39bb0',pants:'#3a3f5c',inner:'#fff3f0'},
   '은퇴·쉬는 중':{top:'#7d8a5a',pants:'#3b3a35',acc:'cane'}
 };
-const HAIR={'20':'#3b2a24','30':'#2e211c','40':'#3a2b22','50':'#55483f','60':'#9a9aa4','70':'#dcdce2'};
+const HAIR={'10':'#2a1d18','20':'#3b2a24','30':'#2e211c','40':'#3a2b22','50':'#55483f','60':'#9a9aa4','70':'#dcdce2'};
 
 /* ---------- 상태 ---------- */
 let profile=store.get('mt5.profile',{name:'',gender:'',age:'',job:'',id:'',since:''});
@@ -795,7 +797,7 @@ $('#goTalk').onclick=()=>{
 };
 
 /* ---------- 게임 ---------- */
-function ageKey(a){return +a<=30?'young':+a<=50?'mid':'old'}
+function ageKey(a){return +a<20?'teen':+a<=30?'young':+a<=50?'mid':'old'}
 function buildRounds(p){
   const job={...JOBQ[p.job],tag:'job'};
   // "~하는 것" 질문이 매 판 최소 3개 나오도록: 2장·3장·4장에서 하나씩 고정
@@ -913,7 +915,7 @@ function renderResult(){
   const charger=R.charger?`<p class="tip">웃게 만든 ‘${esc(R.charger)}’${jo(R.charger,'은','는')} 당신의 충전기예요. 힘들 때 일부러 찾아가세요.</p>`:'';
   const max=Math.max(1,...Object.values(R.dims));
   const bars=Object.keys(DIM).map(d=>`<div class="bar ${d===k?'top':''}"><span>${DIM[d]}</span><span class="tr"><span class="fl" style="display:block;width:${Math.round(R.dims[d]/max*100)}%"></span></span><em>${Math.round(R.dims[d]/max*100)}</em></div>`).join('');
-  const crisis=S.crisis?`<div class="alert"><h3>먼저, 꼭 전하고 싶은 것</h3><p>죽고 싶을 만큼 힘든 마음이 보였어요. 지금 바로 이야기를 들어 줄 사람이 있어요. 24시간 연결돼요.</p><p class="num">자살예방상담전화 109</p><p class="num">정신건강위기상담 1577-0199</p><p>위급한 상황이면 112 또는 119로 연락하세요.</p></div>`:'';
+  const crisis=S.crisis?`<div class="alert"><h3>먼저, 꼭 전하고 싶은 것</h3><p>죽고 싶을 만큼 힘든 마음이 보였어요. 지금 바로 이야기를 들어 줄 사람이 있어요. 24시간 연결돼요.</p><p class="num">자살예방상담전화 109</p><p class="num">정신건강위기상담 1577-0199</p><p class="num">청소년상담 1388</p><p>위급한 상황이면 112 또는 119로 연락하세요.</p></div>`:'';
   const kw=Object.keys(DIM).map(d=>`<span class="${d} ${R.dims[d]>0?'hit':''} ${d===k?'top':''}">${DIM[d]}</span>`).join('');
   $('#s-result').innerHTML=`
   ${crisis}
