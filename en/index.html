@@ -1,0 +1,1044 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A heart-check game where you're asked in five words and answer in five words · KOREA CONTENTS LAB">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<!--
+  5-Word Talk · Heart Talk (English edition of 5자토크 마음토크)
+  Copyright (c) 2026 KOREA CONTENTS LAB. All rights reserved.
+  The concept, question system, analysis logic, text, graphics, music and source code in this file are works of KOREA CONTENTS LAB.
+  No copying, distribution, adaptation, republication or commercial use without prior written permission. (Copyright Act of the Republic of Korea)
+-->
+<title>5-Word Talk · Heart Talk</title>
+<meta name="author" content="KOREA CONTENTS LAB">
+<meta name="copyright" content="© 2026 KOREA CONTENTS LAB. All rights reserved.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a single picture postcard — pastel cards stacked under a sunset flower-path stage (stage pinned left on desktop) */
+:root{
+  --bg:#fbf6ee; --paper:#fffdf9; --ink:#2f2b3a; --muted:#857d8e; --line:#efe4d6;
+  --coral:#ef6356; --coral-2:#f8907a; --coral-ink:#ffffff; --coral-soft:#fde8e2;
+  --mint:#5fb79a; --mint-soft:#e3f3ec; --lilac:#9b7fd1; --lilac-soft:#efe8fa;
+  --orange:#f3925a; --peach-soft:#fdeee4; --butter-soft:#fcefc8; --sky-soft:#dcecf8;
+  --lantern:#ef6356; --shadow:0 10px 30px -14px rgba(120,80,60,.28),0 2px 6px -2px rgba(120,80,60,.10);
+  --display:'Fredoka','Nunito',system-ui,sans-serif;
+  --body:'Nunito',system-ui,sans-serif;
+  color-scheme:light;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--body);font-size:16px;line-height:1.65;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 48px}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;letter-spacing:.01em}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible,label:focus-within{outline:3px solid var(--coral-2);outline-offset:2px}
+
+/* Header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brandbox{display:flex;flex-direction:column}
+.brand{font-size:26px;display:flex;align-items:baseline;gap:6px;color:var(--coral);line-height:1.2}
+.brand span{color:var(--ink);font-size:20px}
+.byline{font-family:var(--display);font-size:11px;letter-spacing:.28em;color:var(--mint);margin-top:2px}
+.bgm{background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;display:flex;gap:7px;align-items:center;color:var(--muted);box-shadow:0 2px 0 var(--line)}
+.bgm[aria-pressed="true"]{color:var(--ink);border-color:#f3c9bd}
+.bgm i{display:inline-flex;gap:2px;align-items:flex-end;height:12px;color:var(--coral)}
+.bgm i b{width:3px;background:currentColor;height:4px;border-radius:1px}
+.bgm[aria-pressed="true"] i b{animation:eq 1s ease-in-out infinite}
+.bgm i b:nth-child(2){animation-delay:.2s}.bgm i b:nth-child(3){animation-delay:.4s}
+@keyframes eq{50%{height:12px}}
+
+/* Title */
+.hero{text-align:center;display:flex;flex-direction:column;gap:6px;padding-block:6px 2px}
+.hero h2{font-size:clamp(30px,8.4vw,40px);line-height:1.18;color:var(--ink)}
+.hero h2 em{font-style:normal;color:var(--coral);display:inline-block}
+.hero h2 em svg{width:.62em;height:.62em;vertical-align:.1em;margin-left:.08em}
+.hero p{color:var(--muted);font-size:15px}
+
+/* Stage */
+.stage-box{position:relative;border-radius:22px;overflow:hidden;box-shadow:var(--shadow);background:#f4c6b4}
+#stage{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges;max-width:100%}
+.hud{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--display);font-size:14px;pointer-events:none}
+.hud .tag{background:rgba(255,253,249,.88);color:var(--ink);padding:3px 12px;border-radius:999px;box-shadow:0 2px 8px rgba(80,50,60,.12)}
+.dots{display:flex;gap:4px;align-items:center}
+.dots b{width:9px;height:9px;border-radius:50%;background:#eadfd6}
+.dots b.on{background:var(--coral)}
+.dots b.now{background:#fff;box-shadow:inset 0 0 0 2px var(--coral)}
+
+/* Cards and basics */
+.screen{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0;box-shadow:var(--shadow)}
+.lead{font-size:16px;color:var(--ink)}
+.muted{color:var(--muted);font-size:14px}
+.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--muted);font-family:var(--display)}
+.sec{display:flex;align-items:center;gap:6px;font-family:var(--display);font-size:17px;color:var(--ink)}
+.sec svg{width:18px;height:18px;flex:none}
+
+/* Three steps */
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.steps li{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:18px;line-height:1.4;font-size:14px;color:var(--muted)}
+.steps li:nth-child(1){background:var(--mint-soft)}
+.steps li:nth-child(2){background:var(--peach-soft)}
+.steps li:nth-child(3){background:var(--lilac-soft)}
+.steps .ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff}
+.steps li:nth-child(1) .ic{background:var(--mint)}
+.steps li:nth-child(2) .ic{background:var(--orange)}
+.steps li:nth-child(3) .ic{background:var(--lilac)}
+.steps .ic svg{width:22px;height:22px}
+.steps b{display:block;font-family:var(--display);font-weight:400;color:var(--ink);font-size:17px}
+
+/* Buttons */
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row > *{flex:1 1 140px}
+.primary,.ghost,.soft{border-radius:999px;padding:13px 20px;font-family:var(--display);font-size:18px;border:0;transition:transform .1s,box-shadow .1s,filter .1s;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.primary{background:linear-gradient(180deg,var(--coral-2),var(--coral));color:var(--coral-ink);box-shadow:0 8px 18px -8px rgba(239,99,86,.7)}
+.primary:hover{filter:brightness(1.04)}
+.primary:active{transform:translateY(2px);box-shadow:0 3px 8px -4px rgba(239,99,86,.7)}
+.primary:disabled{background:#efe3dc;color:#b8a9a3;box-shadow:none;cursor:not-allowed}
+.primary .arr{font-size:.95em}
+.soft{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);box-shadow:0 2px 0 var(--line)}
+.soft:active{transform:translateY(2px);box-shadow:none}
+.ghost{background:transparent;border:1.5px dashed #e6d6c8;color:var(--muted)}
+
+/* Inputs */
+label.lbl,.lbl{font-family:var(--display);font-size:17px;color:var(--ink)}
+.field{display:flex;gap:8px}
+.field input{flex:1;min-width:0}
+input[type=text],input[type=email]{background:#fff;border:1.5px solid var(--line);border-radius:14px;color:var(--ink);padding:11px 14px;font:inherit;font-size:17px}
+input::placeholder{color:#b7aeb6}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 15px;font-size:15px;color:var(--ink)}
+.chip:hover{border-color:#f3c9bd}
+.chip[aria-pressed="true"]{border-color:var(--coral);color:var(--coral);background:var(--coral-soft)}
+.group{display:flex;flex-direction:column;gap:8px}
+
+/* Talk */
+.bubble{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:14px 16px;position:relative;box-shadow:var(--shadow);display:flex;gap:12px;align-items:flex-start}
+.bubble:before{content:"";position:absolute;top:-9px;left:50%;width:16px;height:16px;background:var(--paper);border-left:1px solid var(--line);border-top:1px solid var(--line);transform:translateX(-50%) rotate(45deg)}
+.ava{width:52px;height:52px;border-radius:50%;background:var(--peach-soft);flex:none;display:grid;place-items:center;overflow:hidden}
+.ava canvas{width:44px;height:44px;image-rendering:pixelated}
+.bubble .txt{min-width:0;flex:1}
+.bubble .who{font-family:var(--display);font-weight:400;color:var(--coral);font-size:15px}
+#say{white-space:pre-line;min-height:3.2em;font-size:16px}
+.tiles{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.tile{min-width:clamp(50px,14vw,68px);height:clamp(44px,11.5vw,54px);padding:0 12px;box-sizing:border-box;max-width:100%;display:grid;place-items:center;font-family:var(--display);font-size:clamp(17px,4.6vw,22px);border-radius:14px;color:var(--ink);word-break:break-word}
+.q .tile{animation:flip .45s backwards;box-shadow:inset 0 -4px 0 rgba(60,40,50,.08),0 6px 12px -8px rgba(80,50,60,.35)}
+.q .tile:nth-child(5n+1),.rx .tile:nth-child(5n+1){background:#cfeee1}
+.q .tile:nth-child(5n+2),.rx .tile:nth-child(5n+2){background:#fbd8cc}
+.q .tile:nth-child(5n+3),.rx .tile:nth-child(5n+3){background:#e4dbf7}
+.q .tile:nth-child(5n+4),.rx .tile:nth-child(5n+4){background:#fbe8b4}
+.q .tile:nth-child(5n+5),.rx .tile:nth-child(5n+5){background:#d6e9f8}
+@keyframes flip{from{transform:rotateX(90deg) translateY(-6px);opacity:.2}}
+.qline{text-align:center;color:var(--muted);font-size:14px;margin-top:-4px}
+.a .tile{background:#fffaf6;border:1.5px dashed #efc2b6;color:var(--ink)}
+.a .tile.fill{border-style:solid;border-color:#9fd8c3;background:var(--mint-soft)}
+.a.over .tile.fill{border-color:var(--coral);color:var(--coral);background:var(--coral-soft)}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.meta #count{font-variant-numeric:tabular-nums;color:var(--mint)}
+.a.over + .meta #count{color:var(--coral)}
+.ex .chip{font-size:14px;padding:5px 13px;background:var(--peach-soft);border-color:transparent}
+.alert{background:#fff1ee;border:1.5px solid #f4b3a7;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.alert h3{color:var(--coral);font-size:18px}
+.alert .num{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums;user-select:all}
+
+/* Result */
+.verdict{text-align:center;align-items:center;background:linear-gradient(180deg,#fffdf9,#fff6f1)}
+.verdict h2{font-size:clamp(24px,6.6vw,30px);line-height:1.25;display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap}
+.verdict h2 em{font-style:normal;color:var(--coral)}
+.verdict h2 svg{width:24px;height:24px}
+.verdict .sub{color:var(--muted);font-size:15px}
+.verdict .why{font-size:15px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;width:100%}
+.wxrow{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 14px 4px 6px;font-size:14px;color:var(--muted)}
+.wxrow b{font-family:var(--display);font-weight:400;color:var(--ink)}
+.wxrow canvas{width:28px;height:28px;image-rendering:pixelated}
+.rx .tile{animation:flip .5s backwards;box-shadow:inset 0 -4px 0 rgba(60,40,50,.08)}
+.todo{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.todo label{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);padding:12px 14px;border-radius:16px;cursor:pointer}
+.todo input{appearance:none;-webkit-appearance:none;width:22px;height:22px;border:2px solid #9fd8c3;border-radius:7px;flex:none;margin:0;display:grid;place-items:center;background:#fff}
+.todo input:checked{background:var(--mint);border-color:var(--mint)}
+.todo input:checked::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg)}
+.todo input:checked + span{text-decoration:line-through;color:var(--muted)}
+.tip{border-left:3px solid #9fd8c3;padding-left:12px;font-size:15px;color:var(--ink)}
+.kw{display:flex;flex-wrap:wrap;gap:8px}
+.kw span{padding:6px 14px;border-radius:999px;font-family:var(--display);font-size:15px;color:var(--ink);opacity:.55}
+.kw span.hit{opacity:1}
+.kw span.top{outline:2px solid currentColor;outline-offset:1px}
+.kw .rest{background:#d6e9f8;color:#3a6c95}.kw .connect{background:#fbd8cc;color:#c4513d}.kw .safety{background:#e4dbf7;color:#6a4fae}
+.kw .express{background:#cfeee1;color:#2f8466}.kw .self{background:#fbe8b4;color:#9a6c12}.kw .grow{background:#f9d3e2;color:#b04773}.kw .body{background:#d9f0dc;color:#3d8148}
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar{display:grid;grid-template-columns:6.6em 1fr 2.4em;align-items:center;gap:8px;font-size:14px}
+.bar .tr{height:10px;background:#f4ece4;border-radius:99px;overflow:hidden}
+.bar .fl{height:100%;background:#d9c9bd;border-radius:99px}
+.bar.top .fl{background:linear-gradient(90deg,var(--coral-2),var(--coral))}.bar.top span:first-child{color:var(--coral)}
+.bar em{font-style:normal;font-variant-numeric:tabular-nums;color:var(--muted);text-align:right}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.log li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.log li:last-child{border-bottom:0}
+.log .lq{color:var(--muted)}
+.log .la{font-family:var(--display);color:var(--ink)}
+.pick{display:none}
+.pick.on{display:flex}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 18px;border-radius:999px;font-family:var(--display);opacity:0;transition:opacity .25s;pointer-events:none;box-shadow:var(--shadow)}
+.toast.on{opacity:1}
+.copybox{width:100%;min-height:120px;background:#fffaf6;color:var(--ink);border:1.5px solid var(--line);border-radius:14px;padding:12px;font:inherit;font-size:13px}
+
+/* History */
+.idcard{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.idcard .id{font-family:var(--display);font-size:24px;color:var(--coral);letter-spacing:.06em}
+.stats{display:flex;gap:16px;font-size:14px;color:var(--muted)}
+.stats b{display:block;font-family:var(--display);font-weight:400;font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums}
+.sess{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:0;box-shadow:0 2px 0 var(--line)}
+.sess summary{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;list-style:none}
+.sess summary::-webkit-details-marker{display:none}
+.sess summary b{font-family:var(--display);font-weight:400;color:var(--coral)}
+.sess .inner{padding:0 14px 14px}
+
+/* Footer & copyright */
+.foot{font-size:12px;color:var(--muted);text-align:center;display:flex;flex-direction:column;gap:4px;align-items:center;padding-top:16px;margin-top:6px;border-top:1px solid var(--line)}
+.foot .kcl{font-family:var(--display);letter-spacing:.28em;color:var(--mint);font-size:13px}
+.linkbtn{background:none;border:0;color:var(--coral);text-decoration:underline;text-underline-offset:3px;font-size:13px;padding:2px 4px}
+.legal h2{font-size:24px;color:var(--coral)}
+.legal h3{font-size:17px;color:var(--ink)}
+.legal ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px;font-size:15px}
+.legal p{font-size:15px}
+.legal .sect{display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px dashed var(--line)}
+/* ===== Per-device layout ===== */
+/* Small phones (≤360px) */
+@media (max-width:360px){
+  body{font-size:15px}
+  .brand{font-size:22px}.brand span{font-size:17px}
+  .bgm{padding:5px 10px}
+  .tiles{gap:5px}
+  .tile{min-width:44px;height:42px;padding:0 9px;font-size:16px;border-radius:12px}
+  .primary,.ghost,.soft{font-size:16px;padding:11px 14px}
+  .card{padding:15px}
+  .ava{width:44px;height:44px}.ava canvas{width:38px;height:38px}
+}
+/* Touch devices: larger tap targets */
+@media (pointer:coarse){
+  .chip{min-height:40px}
+  .primary,.ghost,.soft{min-height:50px}
+  .linkbtn{min-height:36px}
+}
+/* Tablet portrait (768px+) */
+@media (min-width:768px){
+  body{font-size:17px;padding-block:28px 56px}
+  .wrap{max-width:680px;gap:18px}
+  .brand{font-size:30px}.brand span{font-size:23px}
+  .byline{font-size:12px}
+  .hero h2{font-size:46px}
+  .card{padding:24px;gap:14px}
+  .tiles{gap:12px}
+  .tile{min-width:76px;height:58px;padding:0 16px;font-size:24px;border-radius:16px}
+  #say{font-size:17px}
+  .lead{font-size:17px}
+  .ava{width:60px;height:60px}.ava canvas{width:50px;height:50px}
+  .verdict h2{font-size:32px}
+  .bar{font-size:15px}
+}
+/* Desktop / landscape: stage pinned left, talk panel right */
+@media (min-width:1024px), (orientation:landscape) and (max-height:540px) and (min-width:600px){
+  .wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:32px;row-gap:16px;align-items:start;max-width:1180px}
+  .top,.foot{grid-column:1/-1}
+  .hero{grid-column:1;grid-row:2;text-align:left;padding:0}
+  .stage-box{grid-column:1;grid-row:3;position:sticky;top:calc(16px + env(safe-area-inset-top,0px))}
+  .hero[hidden] + .stage-box{grid-row:2}
+  .screen{grid-column:2;grid-row:2 / span 2;min-width:0}
+  .foot{grid-row:4}
+  .bubble:before{top:26px;left:-1px;transform:translateX(-50%) rotate(-45deg)}
+}
+/* Wide desktop */
+@media (min-width:1024px){
+  .tile{min-width:68px;height:54px;font-size:22px}
+  .stage-box{border-radius:26px}
+  .hero h2{font-size:44px}
+}
+@media (min-width:1440px){
+  body{font-size:18px}
+  .wrap{max-width:1300px;column-gap:44px}
+  .tile{min-width:76px;height:58px;font-size:24px}
+}
+/* Phone landscape: short height, tighter spacing */
+@media (orientation:landscape) and (max-height:540px) and (min-width:600px){
+  body{padding-block:8px 24px;font-size:15px}
+  .wrap{column-gap:18px;row-gap:10px}
+  .brand{font-size:21px}.brand span{font-size:16px}
+  .hero h2{font-size:26px}.hero p{font-size:13px}
+  .card{padding:13px;gap:10px;border-radius:18px}
+  .steps li{padding:8px 12px}.steps .ic{width:34px;height:34px}
+  .tile{min-width:40px;height:36px;padding:0 8px;font-size:15px;border-radius:11px}
+  #say{min-height:2.4em;font-size:15px}
+  .ava{width:40px;height:40px}.ava canvas{width:34px;height:34px}
+  .primary,.ghost,.soft{font-size:16px;padding:9px 14px;min-height:42px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.langlink{white-space:nowrap;flex:none;font-size:13px;color:var(--muted);text-decoration:none;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--paper);box-shadow:0 2px 0 var(--line)}
+.topr{display:flex;gap:6px;align-items:center;flex:none}
+.bgm{white-space:nowrap;flex:none}
+.brand{flex-wrap:wrap;column-gap:6px;row-gap:0}
+.brand span{white-space:nowrap}
+.brandbox{min-width:0}
+@media (max-width:420px){.brand{font-size:22px}.brand span{font-size:17px}.bgm{padding:6px 10px}.langlink{padding:6px 10px}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brandbox"><h1 class="brand">5-Word Talk<span>Heart Talk</span></h1><p class="byline">KOREA CONTENTS LAB</p></div>
+    <div class="topr">
+      <a class="langlink" href="../" lang="ko">한국어</a>
+      <button id="bgm" class="bgm" aria-pressed="false" type="button"><i><b></b><b></b><b></b></i><span>BGM off</span></button>
+    </div>
+  </header>
+
+  <div class="hero" id="hero">
+    <h2>Meet your heart<br><em>in five words<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20c0-8 5-13 14-14-1 9-6 14-14 14z" fill="#7cc4a4"/><path d="M5 20c3-4 6-7 10-9" stroke="#4f9b7c" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></em></h2>
+    <p>Shall we gently open up today's heart?</p>
+  </div>
+
+  <div class="stage-box">
+    <canvas id="stage" width="192" height="108" aria-label="At sunset on a stone wall along a flowery lakeside path, Tori the lantern-keeper rabbit stands beside your character"></canvas>
+    <div class="hud" id="hud" hidden><span class="tag" id="hudCh"></span><span class="tag dots" id="dots"></span></div>
+  </div>
+
+  <!-- Title -->
+  <section class="screen" id="s-title">
+    <ol class="steps" aria-label="How it works">
+      <li><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="8" r="4.2"/><path d="M4 20c.6-4.4 4-6.6 8-6.6s7.4 2.2 8 6.6z"/></svg></span><span><b>Choose yourself</b>Pick a nickname, gender, age group and job</span></li>
+      <li><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H10l-4.5 3.5V17H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><circle cx="8.5" cy="11" r="1.3" fill="#f3925a"/><circle cx="12" cy="11" r="1.3" fill="#f3925a"/><circle cx="15.5" cy="11" r="1.3" fill="#f3925a"/></svg></span><span><b>Answer in five words</b>Put a piece of your heart into ten questions</span></li>
+      <li><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.5s-8-4.8-8-11A4.6 4.6 0 0 1 12 6.6 4.6 4.6 0 0 1 20 9.5c0 6.2-8 11-8 11z"/></svg></span><span><b>Care for your heart</b>Find out what you need now, plus three things to try</span></li>
+    </ol>
+    <p class="lead" id="welcome" style="text-align:center">Even the things that are hard to tell anyone fit in five words.</p>
+    <button class="primary" id="goStart" type="button">Start <span class="arr">→</span></button>
+    <button class="soft" id="goHist" type="button">Past records</button>
+    <p class="muted" style="text-align:center">Soft background music plays when you start. Your records are saved only in this device's browser.</p>
+  </section>
+
+  <!-- Profile -->
+  <section class="screen" id="s-profile" hidden>
+    <div class="card">
+      <div class="group">
+        <label class="lbl" for="nick">Nickname</label>
+        <div class="field"><input type="text" id="nick" maxlength="20" placeholder="e.g. Quiet Whale"><button class="soft" id="randNick" type="button" style="font-size:15px;padding:8px 12px">Suggest</button></div>
+        <p class="muted">No need to use your real name.</p>
+      </div>
+      <div class="group"><span class="lbl">Gender</span><div class="chips" data-g="gender"></div></div>
+      <div class="group"><span class="lbl">Age group</span><div class="chips" data-g="age"></div></div>
+      <div class="group"><span class="lbl">Occupation</span><div class="chips" data-g="job"></div></div>
+      <button class="primary" id="goTalk" type="button" disabled>Start as this character <span class="arr">→</span></button>
+    </div>
+  </section>
+
+  <!-- Talk -->
+  <section class="screen" id="s-talk" hidden>
+    <div class="bubble"><span class="ava"><canvas id="ava" width="16" height="16"></canvas></span><div class="txt"><b class="who">Tori the Lantern Keeper</b><p id="say"></p></div></div>
+    <div class="alert" id="talkAlert" hidden>
+      <h3>If things feel really hard right now</h3>
+      <p>You don't have to carry this alone. There are people ready to listen, any time of day.</p>
+      <p class="num">US 988 (call or text) · UK &amp; Ireland 116 123 · Korea 109</p>
+      <p>Elsewhere, find a free local helpline at findahelpline.com</p>
+    </div>
+    <div class="card">
+      <div class="tiles q" id="qtiles"></div>
+      <p class="qline" id="qline"></p>
+      <div class="group">
+        <div class="meta" style="align-items:baseline"><label class="lbl" for="ans">My five words</label><span>Words are split by spaces</span></div>
+        <input type="text" id="ans" autocomplete="off" autocapitalize="sentences" enterkeyhint="done" placeholder="Type here">
+        <div class="tiles a" id="atiles"></div>
+        <div class="meta"><span id="count">0 / 5</span><span>Fill all five to send</span></div>
+      </div>
+      <div class="group ex"><span class="muted">Stuck? Tap one to try it</span><div class="chips" id="ex"></div></div>
+      <div class="row">
+        <button class="ghost" id="skip" type="button">Skip</button>
+        <button class="primary" id="send" type="button" disabled>Send my heart <span class="arr">→</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Result -->
+  <section class="screen" id="s-result" hidden></section>
+
+  <!-- History -->
+  <section class="screen" id="s-hist" hidden></section>
+
+  <!-- Copyright & terms -->
+  <section class="screen" id="s-legal" hidden>
+    <div class="card legal">
+      <span class="eyebrow">Effective October 19, 2026</span>
+      <h2>Copyright &amp; Terms of Use</h2>
+      <div class="sect">
+        <h3>Copyright holder</h3>
+        <p>The copyright in “5-Word Talk · Heart Talk” (5자토크 마음토크, “the Game”) belongs to <b>KOREA CONTENTS LAB</b>. The Game is protected by the Copyright Act of the Republic of Korea and by international treaties including the Berne Convention.</p>
+      </div>
+      <div class="sect">
+        <h3>What is protected</h3>
+        <ul>
+          <li>The concept and expression of five-word questions and five-word answers, and the five-chapter, ten-question structure</li>
+          <li>All question wording, sample answers, dialogue, prescriptions (including five-word prescriptions) and advice text</li>
+          <li>The analysis and prescription system that leads from heart weather to heart map to needs diagnosis</li>
+          <li>Characters (including Tori the Lantern Keeper), pixel graphics, screen design and background music</li>
+          <li>All source code and data</li>
+        </ul>
+      </div>
+      <div class="sect">
+        <h3>Permitted use</h3>
+        <ul>
+          <li>Playing the Game personally at this address</li>
+          <li>Telling others about the Game's address (link)</li>
+          <li>Keeping your own result screen for personal use</li>
+        </ul>
+      </div>
+      <div class="sect">
+        <h3>Prohibited use</h3>
+        <p>Without prior written permission from KOREA CONTENTS LAB, you may not:</p>
+        <ul>
+          <li>Copy, republish or distribute all or part of the Game (question system, text, graphics, music, code)</li>
+          <li>Modify, translate, adapt or create derivative works based on the Game</li>
+          <li>Embed or quote the Game in other websites, apps, education or counseling programs, or publications</li>
+          <li>Use the Game for commercial purposes such as paid services, lectures or workshops</li>
+          <li>Remove or alter the author credit (KOREA CONTENTS LAB)</li>
+        </ul>
+      </div>
+      <div class="sect">
+        <h3>Enforcement</h3>
+        <p>If unauthorized use is found, KOREA CONTENTS LAB may take civil action, such as takedown requests and claims for damages, and may file a criminal complaint under Article 136 of the Copyright Act of the Republic of Korea. That article provides for up to five years' imprisonment or a fine of up to KRW 50 million for infringement of economic rights.</p>
+      </div>
+      <div class="sect">
+        <h3>Permission requests</h3>
+        <p>If you'd like to use the Game for education, institutional counseling, joint research or similar purposes, please first obtain written permission from KOREA CONTENTS LAB at the address below.</p>
+        <div class="field" style="align-items:center"><span class="num" id="lmail" style="font-family:var(--display);font-size:18px;color:var(--lantern);user-select:all;word-break:break-all;flex:1;min-width:0">2025koreacl@gmail.com</span><button class="soft" id="lmailCopy" type="button" style="font-size:15px;padding:8px 12px">Copy address</button></div>
+      </div>
+      <div class="sect">
+        <h3>Privacy &amp; disclaimer</h3>
+        <ul>
+          <li>Your nickname and answers are never sent to a server; they are stored only in the browser of the device you play on.</li>
+          <li>The Game is a tool for reflecting on your feelings. It does not replace medical diagnosis, professional counseling or treatment.</li>
+        </ul>
+      </div>
+      <button class="soft" id="legalBack" type="button">Back</button>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span class="kcl">KOREA CONTENTS LAB</span>
+    <span>© 2026 KOREA CONTENTS LAB. All rights reserved. No unauthorized copying, distribution or adaptation.</span>
+    <span>Permission requests <span style="user-select:all">2025koreacl@gmail.com</span></span>
+    <button class="linkbtn" id="legalOpen" type="button">Copyright &amp; Terms of Use</button>
+    <span>This game does not replace professional counseling or treatment.</span>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const words=s=>String(s).trim().split(/\s+/).filter(Boolean);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const norm=s=>String(s).toLowerCase().replace(/[’‘`]/g,"'").replace(/\s+/g,' ').trim();
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const RX=new Map();
+const has=(s,k)=>{let r=RX.get(k);if(!r){r=new RegExp('(^|[^a-z])'+reEsc(k));RX.set(k,r)}return r.test(s)};
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),1600)}
+
+/* ---------- Data ---------- */
+const GENDERS=['Female','Male','Prefer not to say'];
+const AGES=['20','30','40','50','60','70'];
+const JOBS=['Student / job seeker','Office worker','Self-employed','Professional','Public sector / education','Service / sales','Trades / technical','Arts / freelance','Homemaker / caregiver','Retired / taking a break'];
+
+const Q={
+  today1:{q:'What did you do today',line:'So, what did you get up to today?',tag:'today',ex:['Just worked all day long','Stayed at home all day','Met up with a friend']},
+  today2:{q:'How was your day today',line:'How did today feel for you?',tag:'today',ex:['Honestly it was just okay','I felt a bit tired','It was actually pretty good']},
+  hear:{q:'Words you long to hear',line:'What words do you wish someone would say to you?',tag:'hear',ex:['You did a great job','You are doing just fine',"It's going to be okay"]},
+  need:{q:'What do you need now',line:'What do you need most right now?',tag:'need',ex:['A long and proper rest','Someone to open up to','A small sense of achievement']}
+};
+/* Chapter 2: what moved your heart */
+const JOY=[
+  {q:'What made you smile lately',line:'What made you smile recently?',tag:'laugh',ex:['A really tasty lunch break',"My coworker's silly little joke",'My grandkid being adorably cute']},
+  {q:'What do you love doing',line:'What do you enjoy these days?',tag:'laugh',ing:1,ex:['Walking in the morning air','Sipping a warm coffee slowly','Listening to my favorite songs']},
+  {q:'What are you grateful for',line:'What are you quietly grateful for lately?',tag:'laugh',ing:1,ex:['That my family is healthy','Just an ordinary peaceful day','You being right beside me']},
+  {q:'What comforts you when down',line:'When things are hard, what comforts you?',tag:'laugh',ing:1,ex:['A call from a friend','Taking a walk by myself',"My dog's warm cozy cuddles"]},
+  {q:'What do you cherish most',line:'What do you hold dear and love?',tag:'laugh',ing:1,ex:['My family, all of them','My oldest friend from school','The smell of the sea']}
+];
+const SAD=[
+  {q:'What made you cry lately',line:'What brought you to tears recently?',tag:'cry',ex:["Hearing my mom's voice again",'Feeling all alone in this','Things that felt so unfair']},
+  {q:'What left you feeling hurt',line:'What hurt your feelings recently?',tag:'cry',ex:['No one called me back','Nobody noticed how I felt','Felt left behind by everyone']}
+];
+/* Chapter 3: a heavy heart */
+const BURDEN=[
+  {q:'What keeps you worrying lately',line:'What do you keep worrying about these days?',tag:'burden',ing:1,ex:['What the future will bring','Worried about my own health','Worried about my grown kids']},
+  {q:'What are you holding back',line:'What are you keeping bottled up inside?',tag:'burden',ing:1,ex:['Words I want to say','Feeling hurt but staying quiet','The pain in my body']},
+  {q:'What do you regret most',line:'What keeps coming back as a regret?',tag:'burden',ing:1,ex:['Choices I made back then','Not calling when I should','Times I just held back']},
+  {q:'What are you pondering lately',line:'What are you thinking hardest about these days?',tag:'burden',ing:1,ex:['Should I change my job','How to save more money',"My child's path in life"]},
+  {q:'What is hardest right now',line:'What is the hardest thing lately?',tag:'burden',ex:['Constant worry about my money','Dealing with people and relationships','Endless work piling up daily']},
+  {q:'What made you angry recently',line:'What got you angry recently?',tag:'burden',ex:['Being ignored by my boss','It was my own mistake','They just would not listen']},
+  {q:'Are you sleeping well lately',line:'How have you been sleeping?',tag:'burden',ex:['I wake up very often','Yes, I sleep quite well','I fall asleep too late']}
+];
+/* Chapter 4: wishes */
+const WANT=[
+  {q:'What do you want most',line:'What would you most like to have right now?',tag:'want',ex:['Some time just for me','A comfortable cushion of savings','A new pair of sneakers']},
+  {q:"What's your dream free day",line:'If you got one free day, what would you do?',tag:'want',ex:['Go and see the ocean','Sleep in for hours straight','Learn something completely new today']},
+  {q:'What are you excited about',line:'What are you secretly looking forward to?',tag:'want',ing:1,ex:['A weekend trip somewhere nice','Finally getting paid this month','A fresh start coming soon']},
+  {q:'What would you let go',line:'What would you like to finally let go of?',tag:'want',ex:['Worrying what others will think','My need to be perfect','All my old past regrets']},
+  {q:'Where would you go now',line:'Where would you go right this minute?',tag:'want',ex:['A quiet beach far away','My hometown and childhood yard','A peaceful trail through woods']}
+];
+const JOBQ={
+  'Student / job seeker':{q:'How is your prep going',line:'How are your studies or job hunt going?',ex:['I feel lost right now','Making progress bit by bit','I am completely worn out']},
+  'Office worker':{q:'How is work life lately',line:'How is life at the office these days?',ex:['Just getting through each day',"I feel like I'm suffocating",'It is getting more manageable']},
+  'Self-employed':{q:'How is your business doing',line:'How is business these days?',ex:['There are hardly any customers','Things are slowly getting better','Busy every single day now']},
+  'Professional':{q:'How is your work lately',line:'How is your work going lately?',ex:['The responsibility feels so heavy','I am close to burnout','It is rewarding, at least']},
+  'Public sector / education':{q:'How is your work lately',line:'How is your work treating you?',ex:['Worn out by endless complaints','The kids make it rewarding','Just getting through each day']},
+  'Service / sales':{q:'How are shifts going lately',line:'How are things on the floor these days?',ex:['My body is so sore','Emotionally drained by difficult customers',"I've gotten used to it"]},
+  'Trades / technical':{q:'How is the worksite lately',line:'How are things at the worksite?',ex:['My body is so sore','Worried about safety on site',"I've gotten used to it"]},
+  'Arts / freelance':{q:'How is your creative work',line:'How is your work and creating going?',ex:['No inspiration at all lately','Income feels so very unstable','Enjoying it a lot, actually']},
+  'Homemaker / caregiver':{q:'Did you care for yourself',line:'Not your family — did you take care of you?',ex:['I forgot about myself completely','Sometimes I manage a little','I always put myself last']},
+  'Retired / taking a break':{q:'Do days feel long lately',line:'Do your days feel long lately?',ex:['Days feel way too long','They feel just about right','There is nothing to do']}
+};
+const AGEQ={
+  young:{q:'What was your childhood dream',line:'What did you dream of being as a kid?',tag:'want',ex:['To become a famous writer','Simply to live life well','I still do not know']},
+  mid:{q:"What's your me time lately",line:'What do you do just for yourself these days?',tag:'want',ex:['Just a walk, nothing more','Nothing for myself at all','One cup of coffee alone']},
+  old:{q:'What brings you joy daily',line:'What is the little joy of your day?',tag:'want',ex:['Spending time with my grandkids','Tending my little vegetable garden','Watching my favorite TV shows']}
+};
+const CH_INTRO={
+  'Ch.1 · Today':n=>`Hello, ${n}. I'm Tori, the lantern keeper. With every answer, the lantern grows a little brighter. Shall we start with your day?`,
+  'Ch.2 · Smiles & Tears':()=>'Now let’s visit the moments that moved you. Smiles and tears are both precious pieces.',
+  'Ch.3 · Heavy Heart':()=>'It’s okay if this gets a little heavy. Even what’s been hard to tell anyone only takes five words here.',
+  'Ch.4 · Wishes':()=>'Let’s turn toward what you hope for — the things you want to have and want to do.',
+  'Ch.5 · Check':()=>'Almost there. With two last pieces, let’s check what you really need.'
+};
+const REACT={
+  neg:['I see. Thank you for telling me.','I’ll keep that feeling safe right here.','That sounds heavy. Let’s take it slowly.','There’s a lot inside those five words.'],
+  pos:['Lovely! Hold on to that moment.','Just hearing that warms the lantern.','I’m so glad moments like that exist.'],
+  mid:['Got it — one more piece collected.','Hmm, let’s go a little deeper.','I see. Shall we move to the next piece?'],
+  skip:['That’s okay. You can skip anything you don’t want to share.'],
+  crisis:['It sounds like you’ve been hurting a lot. Thank you so much for telling me. The numbers below are places you can reach right now.']
+};
+
+/* Keyword stems, matched at the start of a word */
+const LEX={
+  rest:['tired','exhaust','drain','sleep','nap','rest','break','overtime','busy','burn','vacation','travel','trip','beach','ocean','sea','getaway','lie down','worn','weary','sleepy','relax','work all','worked all','only work','just work','sore'],
+  connect:['friend','family','mom','mum','mother','dad','father','parent','husband','wife','partner','kid','child','son','daughter','grand','people','someone','nobody','no one','miss','lonely','alone','call','text','meet','met ','talk','chat','hometown','together','bored','long','relationship','boss','coworker','dog','cat'],
+  safety:['job','career','quit','sav','money','bank','salary','paid','payday','debt','loan','rent','bill','worr','anxi','future','lost','uncertain','unstable','exam','test','interview','unemploy',"don't know",'do not know','unsure','customer','business','responsib','safety','afford','cost'],
+  express:['hurt','upset','unfair','angry','anger','mad','annoy','frustrat','ignored','hate','rage','resent','others will think','what others','argu','fight','fought','complain','suffocat','held back','holding back','bottled','quiet','unheard','misunderstood','would not listen','not listen','noticed','words i want'],
+  self:['recogni','prais','great job','good job','well done','doing just fine','doing well','doing great','proud','okay','myself','me time','for me','last','forgot','forget','self','mistake','enough','perfect','regret','worth','nothing for'],
+  grow:['learn','study','studies','challenge','dream','new','start','begin','grow','writer','goal','inspir','creat','make','hobby','garden','achiev','purpose','meaning','nothing to do','reward','fulfil','class','skill','progress','fresh'],
+  body:['pain','ache','sick','back pain','head','hospital','doctor','body','health','heavy','exercise','workout','shoulder','knee','cold','flu','wake','waking','insomnia','asleep','sore']
+};
+const POS=['warm','cozy','looking forward','excit','payday','cherish','good','great','happy','laugh','smile','fun','enjoy','tasty','delicious','grateful','thank','thrill','glad','joy','love','comfort','calm','peace','proud','best','sleep quite well','sleep well','reward','better','manageable','joke','just about right','just right','nice','lovely','sweet','cute','adorabl','healthy'];
+const NEG=['tired','exhaust','sad','cried','cry','tear','depress','lonely','alone','worr','anxi','angry','mad','annoy','pain','hurt','hate','lost','stuck','frustrat','unfair','scared','afraid','nothing','can\'t','cannot','forgot','last','suffocat','worn','heavy','endur','surviv','burn','hard','struggl','drain','awful','terrible','bad','stress','sore','ignored','unstable','no one','nobody','too long','getting through'];
+const CRISIS=['kill myself','killing myself','suicid','want to die','wanna die','wish i was dead','wish i were dead','end my life','end it all','better off dead','self harm','self-harm','hurt myself','cut myself','no reason to live',"don't want to live",'do not want to live','not want to live','disappear forever','want to disappear'];
+const isCrisis=s=>{const c=s.replace(/[\s-]/g,'');return CRISIS.some(k=>s.includes(k)||c.includes(k.replace(/[\s-]/g,'')))};
+
+const DIM={rest:'Rest',connect:'Connection',safety:'Stability',express:'Expression',self:'Recognition',grow:'Meaning',body:'Body'};
+const NEED={
+  rest:{title:'Time to pause and recover',rx:'Today, let yourself just rest',acts:['Put your phone down 30 minutes earlier tonight','Drop one plan this week to make some empty time','Breathe in for 4 seconds and out for 6, five times, eyes closed']},
+  connect:{title:'Someone to share your heart with',rx:'Reach out to someone today',acts:['Send a one-line hello to someone you miss','Set up a meal with someone this week','Look for one local group or club to join']},
+  safety:{title:'Breaking worry into small pieces',rx:'Break it into small steps',acts:['Write down every worry, then circle only the ones you can act on','If it’s about money, put this month’s income and spending on one page','Choose just one next step and do it tomorrow morning']},
+  express:{title:'Letting out held-in feelings',rx:"It's okay to say it",acts:['Write a letter you’ll never send about what made you angry','Walk briskly for 20 minutes and let the feeling move out of your body','Tell one person you trust, “This is how I’ve been lately”']},
+  self:{title:'Recognizing yourself',rx:'You are doing really well',acts:['Before bed, write down three things you did well today','Say out loud to yourself the words you’ve wanted to hear','Pick one small gift just for you']},
+  grow:{title:'Starting again, small',rx:'Begin with one tiny step',acts:['Break something you want to do into a 15-minute first step','Find one trial class or free course this week','Start a small notebook to track your progress']},
+  body:{title:'Caring for your body first',rx:'Take care of your body',acts:['Drink a glass of water and stretch for 5 minutes','Book the doctor’s visit or checkup you’ve been putting off','Keep a steady time for going to sleep and waking up']}
+};
+const AGE_TIP={
+  '20':'In your 20s, comparing yourself to others can be a big source of stress. Today, compare yourself with yesterday’s you, not with anyone else.',
+  '30':'This is a season when responsibilities pile up. Put one slot for “a promise to myself” in your calendar first.',
+  '40':'Looking after everyone makes it easy to push yourself to the back. Set aside a fixed time for yourself once a week.',
+  '50':'Your body and your roles are both changing. Along with a health checkup, review your list of things you still want to do.',
+  '60':'A daily rhythm protects the heart. Set regular times for waking up, walking and seeing people.',
+  '70':'Small joys and check-ins give great strength. Try one phone call to someone and one walk outside every day.'
+};
+const JOB_TIP={
+  'Student / job seeker':'Preparation shows results slowly, so it’s easy to burn out. Write down what you did each day so you can see your progress.',
+  'Office worker':'Squeeze a 10-minute breather between tasks. A solo walk after lunch works well.',
+  'Self-employed':'Don’t treat your sales as your worth. Set aside time outside the business at least once a week.',
+  'Professional':'The heavier the responsibility, the more you need a ritual to switch off after work. Create a signal, like changing clothes or taking a shower.',
+  'Public sector / education':'Working with people takes a lot of emotional energy. On your way home, practice letting go of one thing someone said today.',
+  'Service / sales':'Emotional labor needs recovery time. Keep the first 5 minutes after your shift as a time with no talking.',
+  'Trades / technical':'Physical work needs physical recovery. Make stretching and a warm shower after work a habit.',
+  'Arts / freelance':'An irregular schedule feeds anxiety. Setting work hours and rest hours keeps your heart steadier.',
+  'Homemaker / caregiver':'Caregivers need care too. Make 20 minutes a day when you’re simply you, not someone’s family member.',
+  'Retired / taking a break':'Fill the space work left with a small role. Volunteering, learning or a club can give your day shape.'
+};
+const OUTFIT={
+  'Student / job seeker':{top:'#6c8fd6',pants:'#2b3352',acc:'bag'},
+  'Office worker':{top:'#34416b',pants:'#262d47',inner:'#eef0f6',tie:'#c94a4a'},
+  'Self-employed':{top:'#4f8a6a',pants:'#2b3048',apron:'#8a5a3c'},
+  'Professional':{top:'#e6e9f0',pants:'#33395a',inner:'#5aa9a0'},
+  'Public sector / education':{top:'#c9a77c',pants:'#3a3f5c',acc:'lanyard'},
+  'Service / sales':{top:'#e0806a',pants:'#22263a',apron:'#2a2e44',acc:'badge'},
+  'Trades / technical':{top:'#e8823a',pants:'#2f4a6b',acc:'helmet'},
+  'Arts / freelance':{top:'#7d5ba6',pants:'#262a40',acc:'beret'},
+  'Homemaker / caregiver':{top:'#e39bb0',pants:'#3a3f5c',inner:'#fff3f0'},
+  'Retired / taking a break':{top:'#7d8a5a',pants:'#3b3a35',acc:'cane'}
+};
+const HAIR={'20':'#3b2a24','30':'#2e211c','40':'#3a2b22','50':'#55483f','60':'#9a9aa4','70':'#dcdce2'};
+const SITE='https://ktvwin-pixel.github.io/maeum-talk/en/';
+
+/* ---------- State (separate storage keys from the Korean edition) ---------- */
+let profile=store.get('mt5en.profile',{name:'',gender:'',age:'',job:'',id:'',since:''});
+if(profile.job&&!OUTFIT[profile.job])profile={name:'',gender:'',age:'',job:'',id:'',since:''};
+let visits=store.get('mt5en.visits',0)+1; store.set('mt5en.visits',visits);
+const S={screen:'title',rounds:[],idx:0,answers:[],pieces:0,crisis:false,talking:false,result:null,override:null,sessionId:null,verified:false};
+
+function show(id){S.screen=id;document.querySelectorAll('.screen').forEach(s=>s.hidden=s.id!=='s-'+id);$('#hud').hidden=id!=='talk';$('#hero').hidden=id!=='title';window.scrollTo({top:0,behavior:reduced?'auto':'smooth'})}
+
+/* ---------- Audio: self-synthesized lo-fi BGM ---------- */
+let AC=null,master=null,delay=null,sfx=null,timer=null,nextBar=0,barIdx=0,soundOn=false;
+const mtof=m=>440*Math.pow(2,(m-69)/12);
+const CH=[[53,57,60,64],[52,55,59,62],[50,53,57,60],[48,52,55,59]];
+const PENTA=[72,74,76,79,81,84];
+const BEAT=60/70,BAR=4*BEAT;
+function initAudio(){
+  if(AC)return true;
+  try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return false}
+  master=AC.createGain();master.gain.value=0;
+  const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2400;
+  master.connect(lp);lp.connect(AC.destination);
+  delay=AC.createDelay();delay.delayTime.value=BEAT*0.75;
+  const fb=AC.createGain();fb.gain.value=.35;const wet=AC.createGain();wet.gain.value=.45;
+  delay.connect(fb);fb.connect(delay);delay.connect(wet);wet.connect(master);
+  sfx=AC.createGain();sfx.gain.value=.22;sfx.connect(AC.destination);
+  return true;
+}
+function voice(t,f,type,v,att,dur,rel,dest){
+  const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+att);g.gain.setValueAtTime(v,t+Math.max(att,dur-rel));g.gain.linearRampToValueAtTime(0,t+dur);
+  o.connect(g);g.connect(dest||master);o.start(t);o.stop(t+dur+.05);return g;
+}
+function schedule(){
+  while(nextBar<AC.currentTime+1.6){
+    const notes=CH[barIdx%4],t=nextBar,d=2*BAR;
+    notes.forEach(m=>{voice(t,mtof(m),'sine',.045,1.6,d+.4,1.4);voice(t,mtof(m)*1.003,'triangle',.018,1.8,d+.4,1.4)});
+    voice(t,mtof(notes[0]-12),'sine',.07,.3,d,1);
+    const pool=[...notes.map(n=>n+12),...PENTA];
+    for(let i=0;i<16;i++){
+      if(Math.random()<.42){
+        const tt=t+i*BEAT/2,o=AC.createOscillator(),g=AC.createGain();
+        o.type='triangle';o.frequency.value=mtof(pick(pool));
+        const v=.03+Math.random()*.02;
+        g.gain.setValueAtTime(0,tt);g.gain.linearRampToValueAtTime(v,tt+.01);g.gain.exponentialRampToValueAtTime(.0001,tt+1.1);
+        o.connect(g);g.connect(master);g.connect(delay);o.start(tt);o.stop(tt+1.2);
+      }
+    }
+    nextBar+=d;barIdx++;
+  }
+}
+function setSound(on){
+  if(!initAudio())return;
+  soundOn=on;AC.resume&&AC.resume();
+  const now=AC.currentTime;master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);
+  if(on){
+    if(!timer){nextBar=now+.1;schedule();timer=setInterval(schedule,300)}
+    master.gain.linearRampToValueAtTime(.9,now+1.5);
+  }else{
+    master.gain.linearRampToValueAtTime(0,now+.8);
+    clearInterval(timer);timer=null;
+  }
+  const b=$('#bgm');b.setAttribute('aria-pressed',on);b.querySelector('span').textContent=on?'BGM on':'BGM off';
+  store.set('mt5en.sound',on);
+}
+function blip(f,len=.06,type='square',v=.08){if(!AC||!soundOn)return;const t=AC.currentTime;const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+len);o.connect(g);g.connect(sfx);o.start(t);o.stop(t+len+.02)}
+function chime(){if(!AC||!soundOn)return;[76,79,84].forEach((m,i)=>setTimeout(()=>blip(mtof(m),.5,'sine',.18),i*90))}
+$('#bgm').onclick=()=>setSound(!soundOn);
+document.addEventListener('visibilitychange',()=>{if(!AC)return;if(document.hidden)AC.suspend();else if(soundOn)AC.resume()});
+
+/* ---------- 2D stage ---------- */
+const cv=$('#stage'),g=cv.getContext('2d');const W=192,H=108;
+function drawPerson(x,y,p,t){
+  const ghost=!p.job;
+  const O=ghost?{top:'#3a4168',pants:'#2b3150'}:OUTFIT[p.job];
+  const skin=ghost?'#4a5180':'#f1c7a5',hair=ghost?'#2b3150':(HAIR[p.age]||'#2e211c');
+  const bob=reduced?0:(Math.sin(t*2.2)>0?1:0);
+  r(x-4,y-6,3,6,O.pants);r(x+1,y-6,3,6,O.pants);r(x-4,y-1,3,1,'#14161f');r(x+1,y-1,3,1,'#14161f');
+  r(x-5,y-16,10,10,O.top);
+  if(O.inner)r(x-2,y-16,4,4,O.inner);
+  if(O.tie)r(x-1,y-15,2,6,O.tie);
+  if(O.apron)r(x-4,y-13,8,8,O.apron);
+  if(O.acc==='bag'){r(x-4,y-16,1,9,'#7a5a3c');r(x+3,y-16,1,9,'#7a5a3c')}
+  if(O.acc==='lanyard'){r(x-2,y-16,1,4,'#4aa3d8');r(x+1,y-16,1,4,'#4aa3d8');r(x-1,y-12,2,3,'#f4f4f4')}
+  if(O.acc==='badge')r(x+1,y-14,3,1,'#f4f4f4');
+  if(p.job==='Trades / technical'){r(x-5,y-11,10,1,'#f2f2c8')}
+  r(x-7,y-15,2,7,O.top);r(x+5,y-15,2,7,O.top);r(x-7,y-8,2,2,skin);r(x+5,y-8,2,2,skin);
+  if(O.acc==='cane'){r(x+7,y-9,1,9,'#7a5a3c');r(x+6,y-9,2,1,'#7a5a3c')}
+  const hy=y-25-bob;
+  r(x-1,y-17,2,1,skin);r(x-4,hy,8,8,skin);
+  // hair
+  r(x-5,hy-2,10,3,hair);r(x-4,hy+1,3,1,hair);
+  if(p.gender==='Female'){r(x-6,hy,2,11,hair);r(x+4,hy,2,11,hair)}
+  else if(p.gender==='Male'){r(x-5,hy,1,4,hair);r(x+4,hy,1,4,hair)}
+  else {r(x-5,hy,1,7,hair);r(x+4,hy,1,7,hair)}
+  if(!ghost){
+    const blink=(t%4.3)<.13;
+    if(blink){r(x-3,hy+4,2,1,'#2a2230');r(x+1,hy+4,2,1,'#2a2230')}
+    else{r(x-2,hy+3,1,2,'#2a2230');r(x+1,hy+3,1,2,'#2a2230')}
+    if(+p.age>=50){r(x-4,hy+3,3,1,'#3a3a48');r(x+1,hy+3,3,1,'#3a3a48');r(x-2,hy+4,1,1,'#2a2230');r(x+1,hy+4,1,1,'#2a2230')}
+    r(x-3,hy+5,1,1,'#e79a8a');r(x+2,hy+5,1,1,'#e79a8a');r(x-1,hy+6,2,1,'#b0645a');
+  }
+  if(O.acc==='helmet'){r(x-5,hy-3,10,3,'#f2c94c');r(x-6,hy,12,1,'#d9a92a')}
+  if(O.acc==='beret'){r(x-5,hy-3,9,2,'#b04a5a');r(x+2,hy-4,2,1,'#b04a5a')}
+}
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const r=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),w,h)};
+function layer(fn){const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');fn(x);return c}
+const R2=(x,X,Y,w,h,c)=>{x.fillStyle=c;x.fillRect(Math.round(X),Math.round(Y),w,h)};
+const blob=(x,cx,cy,rad,c)=>{x.fillStyle=c;for(let yy=-rad;yy<=rad;yy++){const w=Math.round(Math.sqrt(rad*rad-yy*yy));x.fillRect(Math.round(cx-w),Math.round(cy+yy),w*2+1,1)}};
+const SUN={x:120,y:57};
+/* Sky, sun, mountains, lake */
+const BG=layer(x=>{
+  const sky=x.createLinearGradient(0,0,0,66);sky.addColorStop(0,'#b5a3dc');sky.addColorStop(.38,'#e4afc7');sky.addColorStop(.7,'#f7c4a6');sky.addColorStop(1,'#fde0ae');
+  x.fillStyle=sky;x.fillRect(0,0,W,66);
+  const gl=x.createRadialGradient(SUN.x,SUN.y,2,SUN.x,SUN.y,44);gl.addColorStop(0,'rgba(255,240,200,.85)');gl.addColorStop(1,'rgba(255,240,200,0)');x.fillStyle=gl;x.fillRect(0,0,W,70);
+  blob(x,SUN.x,SUN.y,9,'#fff3cf');blob(x,SUN.x,SUN.y,7,'#fff8e2');
+  // far mountains
+  x.fillStyle='#b39cd6';x.beginPath();x.moveTo(0,66);for(let i=0;i<=W;i+=2)x.lineTo(i,50+Math.sin(i*.045)*6+Math.sin(i*.11+1)*2);x.lineTo(W,66);x.fill();
+  x.fillStyle='#9580c4';x.beginPath();x.moveTo(0,66);for(let i=0;i<=W;i+=2)x.lineTo(i,58+Math.sin(i*.07+2)*4+Math.sin(i*.19)*1.5);x.lineTo(W,66);x.fill();
+  // village across the water
+  seed=11;for(let i=36;i<160;i+=4+Math.floor(rnd()*3)){const h=2+Math.floor(rnd()*5);R2(x,i,64-h,3,h,'#806db0');if(rnd()<.5)R2(x,i+1,63-h+2,1,1,'#ffe6a8')}
+  // lake
+  const lk=x.createLinearGradient(0,64,0,82);lk.addColorStop(0,'#f2c3b8');lk.addColorStop(1,'#bfa3d6');x.fillStyle=lk;x.fillRect(0,64,W,18);
+  for(let yy=66;yy<82;yy+=3)R2(x,0,yy,W,1,'rgba(255,255,255,.10)');
+});
+/* Trees, grass, stone wall, flower bushes */
+const FG=layer(x=>{
+  seed=23;
+  const tree=(cx,base,s)=>{
+    R2(x,cx-2,base-26*s,4,26*s,'#7a5a48');R2(x,cx-2,base-26*s,1,26*s,'#8f6c58');
+    [[0,-30,13],[-9,-24,10],[9,-24,10],[-4,-36,9],[6,-35,8]].forEach(([dx,dy,rr])=>blob(x,cx+dx*s,base+dy*s,rr*s,'#5f9e70'));
+    [[-2,-32,9],[-10,-26,6],[8,-27,6]].forEach(([dx,dy,rr])=>blob(x,cx+dx*s,base+dy*s,rr*s,'#74b583'));
+    for(let i=0;i<28;i++){const a=rnd()*6.28,d=rnd()*13*s;R2(x,cx+Math.cos(a)*d,base-30*s+Math.sin(a)*d*.8,1,1,rnd()<.6?'#f9b4c4':'#fff4f6')}
+  };
+  tree(14,84,1.05);tree(181,84,1);
+  // grassy bank
+  R2(x,0,78,W,6,'#86c08a');for(let i=0;i<W;i+=3)R2(x,i,77+(i%7===0?-1:0),2,1,'#9bd09c');
+  // stone wall
+  R2(x,0,84,W,18,'#c9bcae');
+  let row=0;for(let yy=84;yy<102;yy+=5){let xx=row%2?-6:0;while(xx<W){const w=9+Math.floor(rnd()*6);
+      const tone=['#e2d8cb','#d9cdbf','#e8dfd3','#d2c5b6'][Math.floor(rnd()*4)];
+      R2(x,xx+1,yy+1,w-1,4,tone);R2(x,xx+1,yy+1,w-1,1,'#f1eadf');R2(x,xx+1,yy+4,w-1,1,'#bdb0a1');xx+=w}row++}
+  R2(x,0,83,W,2,'#efe6da');R2(x,0,85,W,1,'#b8aa9b');
+  // front flower bushes
+  for(let i=-6;i<W+6;i+=11){const cx=i+rnd()*4,cy=104+rnd()*3,rr=6+Math.floor(rnd()*3);blob(x,cx,cy,rr,'#6aae74');blob(x,cx-1,cy-1,rr-2,'#7fc086')}
+  for(let i=0;i<70;i++){const fx=rnd()*W,fy=97+rnd()*11,c=['#f7a3b6','#ffffff','#ffd77a','#f4b6d0','#fbc1a8'][Math.floor(rnd()*5)];R2(x,fx,fy,2,2,c);R2(x,fx,fy,1,1,'#fff')}
+  // little flowers on the wall
+  for(let i=0;i<14;i++){const fx=4+rnd()*184;if(Math.abs(fx-64)<16||Math.abs(fx-133)<16||Math.abs(fx-98)<6)continue;R2(x,fx,82,1,2,'#5f9e70');R2(x,fx-1,81,3,1,rnd()<.5?'#f7a3b6':'#fff')}
+});
+const clouds=[{x:20,y:14,w:22},{x:92,y:8,w:28},{x:150,y:22,w:18},{x:60,y:30,w:14}];
+const petals=Array.from({length:9},(_,i)=>({x:(i*37)%W,y:(i*23)%H,s:.25+((i*7)%5)*.06,p:i}));
+function cloud(cx,cy,w){r(cx,cy,w,3,'#fff4f2');r(cx+3,cy-2,w-8,2,'#fff4f2');r(cx+6,cy-4,w-15,2,'#fff8f6');r(cx,cy+3,w,1,'#f2cfd8')}
+function drawRabbit(x,y,t,talk){
+  const hop=reduced?0:(Math.sin(t*2.6+1)>.3?1:0);
+  const w='#fffaf4',sh='#e8ddd2',ol='#cdbfb3';
+  r(x-6,y-12,12,11,ol);r(x-5,y-11,10,10,w);r(x-5,y-3,10,2,sh);r(x-5,y-1,3,1,ol);r(x+2,y-1,3,1,ol);
+  r(x-6,y-13,12,3,'#7fd0b6');r(x-6,y-13,12,1,'#a6e2cf');r(x+3,y-11,3,4,'#7fd0b6');
+  const hy=y-21-hop;
+  r(x-3,hy-9,3,9,ol);r(x+2,hy-9,3,9,ol);
+  r(x-5,hy-1,11,10,ol);r(x-4,hy,9,8,w);r(x-5,hy+1,1,6,w);r(x+5,hy+1,1,6,w);
+  r(x-2,hy-8,1,8,w);r(x+3,hy-8,1,8,w);r(x-3,hy-7,1,6,'#f6b0bf');r(x+2,hy-7,1,6,'#f6b0bf');
+  const bl=(t%3.7)<.12;
+  if(bl){r(x-3,hy+4,2,1,'#3a2e3a');r(x+2,hy+4,2,1,'#3a2e3a')}else{r(x-2,hy+3,1,2,'#3a2e3a');r(x+2,hy+3,1,2,'#3a2e3a')}
+  r(x,hy+5,1,1,'#e58aa0');r(x-4,hy+5,2,1,'#f8b9c6');r(x+3,hy+5,2,1,'#f8b9c6');
+  if(talk&&Math.floor(t*8)%2)r(x,hy+6,1,1,'#b2566a');
+  r(x-8,y-10,2,4,w);
+}
+function drawAvatar(){
+  const c=$('#ava');if(!c)return;const x=c.getContext('2d');x.clearRect(0,0,16,16);
+  const P=(a,b,w,h,col)=>{x.fillStyle=col;x.fillRect(a,b,w,h)};
+  P(4,0,3,7,'#cdbfb3');P(9,0,3,7,'#cdbfb3');P(5,1,1,6,'#fffaf4');P(10,1,1,6,'#fffaf4');P(6,1,1,5,'#f6b0bf');P(9,1,1,5,'#f6b0bf');
+  P(2,6,12,8,'#cdbfb3');P(3,6,10,8,'#fffaf4');P(2,7,1,6,'#fffaf4');P(13,7,1,6,'#fffaf4');
+  P(5,9,1,2,'#3a2e3a');P(10,9,1,2,'#3a2e3a');P(7,11,2,1,'#e58aa0');P(3,11,2,1,'#f8b9c6');P(11,11,2,1,'#f8b9c6');
+  P(2,14,12,2,'#7fd0b6');P(2,14,12,1,'#a6e2cf');
+}
+function frame(ts){
+  const t=ts/1000;
+  g.drawImage(BG,0,0);
+  clouds.forEach((c,i)=>{const cx=((c.x+(reduced?0:t*(1.2+i*.3)))%(W+40))-30;cloud(cx,c.y,c.w)});
+  // sunlight ripples on the lake
+  for(let k=0;k<7;k++){const yy=66+k*2.2,w=Math.max(2,14-k*1.6)+(reduced?0:Math.sin(t*2+k)*2);g.globalAlpha=.75-k*.08;r(SUN.x-w/2,yy,w,1,'#fff3cf')}g.globalAlpha=1;
+  g.drawImage(FG,0,0);
+  // lantern
+  const lv=S.pieces,rad=16+lv*4,fl=reduced?1:1+Math.sin(t*9)*.05;
+  const lg=g.createRadialGradient(98,64,1,98,64,(rad+6)*fl);lg.addColorStop(0,`rgba(255,214,130,${.45+lv*.03})`);lg.addColorStop(1,'rgba(255,214,130,0)');
+  g.fillStyle=lg;g.fillRect(0,0,W,H);
+  const big=(cx,cy,fn)=>{g.save();g.translate(cx,cy);g.scale(2,2);g.translate(-cx,-cy);fn();g.restore()};
+  big(98,85,()=>{r(97,76,2,9,'#5b4a52');r(95,75,6,1,'#5b4a52');r(95,68,6,7,'#5b4a52');r(96,69,4,5,lv?'#ffd78c':'#f7e1b0');r(96,69,1,4,'#fff3d0');r(96,66,4,2,'#5b4a52');r(97,65,2,1,'#5b4a52')});
+  // collected heart pieces = golden sparkles
+  for(let i=0;i<lv;i++){
+    const fx=98+Math.cos(t*.6+i*1.9)*(10+i*2.6),fy=48+Math.sin(t*1.1+i*1.3)*(7+i*.9);
+    g.globalAlpha=.35;r(fx-1,fy-1,3,3,'#ffe08a');g.globalAlpha=reduced?1:.6+.4*Math.abs(Math.sin(t*3+i));r(fx,fy,1,1,'#fffbe8');g.globalAlpha=1;
+  }
+  big(64,85,()=>drawPerson(64,85,curProfile(),t));
+  big(133,85,()=>drawRabbit(133,85,t,S.talking));
+  // petals
+  if(!reduced)petals.forEach(p=>{const px=(p.x+t*6*p.s*3+Math.sin(t+p.p)*4)%W,py=(p.y+t*8*p.s)%H;r(px,py,2,1,'#fbc3d0');r(px,py+1,1,1,'#f39fb4')});
+  requestAnimationFrame(frame);
+}
+let draft={...profile};
+function curProfile(){return S.screen==='profile'?draft:profile}
+requestAnimationFrame(frame);
+drawAvatar();
+
+/* ---------- Title ---------- */
+const ORD=n=>{const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])};
+function renderTitle(){
+  if(profile.name){$('#welcome').innerHTML=`Welcome back, <b>${esc(profile.name)}</b>. This is your ${ORD(visits)} visit. Shall we put today’s heart into five words?`}
+  show('title');
+}
+$('#goStart').onclick=()=>{setSound(store.get('mt5en.sound',true)!==false);blip(660,.08,'sine',.15);openProfile()};
+$('#goHist').onclick=()=>{initAudio();renderHist()};
+
+/* ---------- Profile ---------- */
+const ADJ=['Quiet','Sparkling','Easygoing','Brave','Cozy','Dawn','Little','Steady','Quirky','Gentle'];
+const NOUN=['Whale','Fox','Snail','Sparrow','Pine','Lighthouse','Cloud','Owl','Cat','Dandelion'];
+function buildChips(){
+  const opts={gender:GENDERS.map(v=>[v,v]),age:AGES.map(v=>[v,v+'s']),job:JOBS.map(v=>[v,v])};
+  document.querySelectorAll('#s-profile .chips').forEach(box=>{
+    const k=box.dataset.g;
+    box.innerHTML=opts[k].map(([v,l])=>`<button type="button" class="chip" data-v="${v}" aria-pressed="${draft[k]===v}">${l}</button>`).join('');
+    box.onclick=e=>{const b=e.target.closest('.chip');if(!b)return;draft[k]=b.dataset.v;box.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b));blip(520+Math.random()*200);checkProfile()};
+  });
+}
+function checkProfile(){draft.name=$('#nick').value.trim();$('#goTalk').disabled=!(draft.name&&draft.gender&&draft.age&&draft.job)}
+function openProfile(){draft={...profile};$('#nick').value=draft.name||'';buildChips();checkProfile();show('profile')}
+$('#nick').addEventListener('input',checkProfile);
+$('#randNick').onclick=()=>{$('#nick').value=pick(ADJ)+' '+pick(NOUN);checkProfile();blip(700)};
+$('#goTalk').onclick=()=>{
+  if(!draft.id)draft.id='MT-'+Math.random().toString(36).slice(2,6).toUpperCase();
+  if(!draft.since)draft.since=new Date().toISOString();
+  profile={...draft};store.set('mt5en.profile',profile);startGame();
+};
+
+/* ---------- Game ---------- */
+function ageKey(a){return +a<=30?'young':+a<=50?'mid':'old'}
+function buildRounds(p){
+  const job={...JOBQ[p.job],tag:'job'};
+  // At least three reflective "what are you ...ing" questions per game: one fixed each from Ch.2, 3, 4
+  const ING=a=>a.filter(x=>x.ing);
+  const b1=pick(ING(BURDEN)),w1=pick(ING(WANT));
+  const L=[['Ch.1 · Today',Q.today1],['Ch.1 · Today',Q.today2],['Ch.2 · Smiles & Tears',pick(ING(JOY))],['Ch.2 · Smiles & Tears',pick(SAD)],
+    ['Ch.3 · Heavy Heart',job],['Ch.3 · Heavy Heart',b1],['Ch.4 · Wishes',w1],['Ch.4 · Wishes',AGEQ[ageKey(p.age)]],['Ch.5 · Check',Q.hear],['Ch.5 · Check',Q.need]];
+  return L.map(([ch,q])=>({ch,...q}));
+}
+function startGame(){
+  Object.assign(S,{rounds:buildRounds(profile),idx:0,answers:[],pieces:0,crisis:false,override:null,sessionId:null,verified:false});
+  $('#talkAlert').hidden=true;show('talk');renderRound('');
+}
+let sayTimer=null;
+function say(text){
+  const el=$('#say');clearInterval(sayTimer);
+  if(reduced){el.textContent=text;S.talking=false;return}
+  let i=0;el.textContent='';S.talking=true;
+  sayTimer=setInterval(()=>{i+=2;el.textContent=text.slice(0,i);if(i%6===0)blip(880+Math.random()*120,.025,'square',.03);if(i>=text.length){clearInterval(sayTimer);S.talking=false}},26);
+}
+function renderRound(reaction){
+  const R=S.rounds[S.idx],prev=S.rounds[S.idx-1];
+  $('#hudCh').textContent=`${R.ch} ${S.idx+1} / ${S.rounds.length}`;
+  $('#dots').innerHTML=S.rounds.map((_,i)=>`<b class="${i<S.idx?(S.answers[i]&&!S.answers[i].skipped?'on':''):(i===S.idx?'now':'')}"></b>`).join('');
+  $('#qtiles').innerHTML=words(R.q).map((c,i)=>`<span class="tile" style="animation-delay:${i*70}ms">${esc(c)}</span>`).join('');
+  $('#qline').textContent=R.line;
+  let msg=reaction?reaction+'\n\n':'';
+  if(!prev||prev.ch!==R.ch)msg+=CH_INTRO[R.ch](profile.name)+'\n';
+  msg+=`“${R.line}” Answer in five words.`;
+  say(msg);
+  $('#ex').innerHTML=R.ex.map(e=>`<button type="button" class="chip">${esc(e)}</button>`).join('');
+  $('#ans').value='';updateTiles();
+}
+$('#ex').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;$('#ans').value=b.textContent;updateTiles();blip(600)};
+function updateTiles(){
+  const c=words($('#ans').value),n=c.length,box=$('#atiles');
+  let html='';for(let i=0;i<Math.max(5,n);i++)html+=`<span class="tile ${c[i]?'fill':''}">${c[i]?esc(c[i]):''}</span>`;
+  box.innerHTML=html;box.classList.toggle('over',n>5);
+  $('#count').textContent=n>5?`${n} / 5 · remove ${n-5} word${n-5>1?'s':''}`:`${n} / 5`;
+  $('#send').disabled=n!==5;
+}
+$('#ans').addEventListener('input',()=>{updateTiles();blip(400+words($('#ans').value).length*80,.03,'square',.04)});
+$('#ans').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing&&!$('#send').disabled){e.preventDefault();submit(false)}});
+$('#send').onclick=()=>submit(false);
+$('#skip').onclick=()=>submit(true);
+
+function tone(s,tag){
+  if(isCrisis(s))return 'crisis';
+  const n=NEG.some(k=>has(s,k)),p=POS.some(k=>has(s,k));
+  if(n&&!p)return 'neg';if(p&&!n)return 'pos';
+  if(tag==='cry')return 'neg';if(tag==='laugh')return 'pos';return 'mid';
+}
+function submit(skipped){
+  const R=S.rounds[S.idx],a=skipped?'':$('#ans').value.trim().replace(/\s+/g,' ');
+  const tn=skipped?'skip':tone(norm(a),R.tag);
+  S.answers.push({q:R.q,line:R.line,tag:R.tag,a,skipped});
+  if(!skipped){S.pieces++;chime()}else blip(300,.12,'triangle',.1);
+  if(tn==='crisis'){S.crisis=true;$('#talkAlert').hidden=false}
+  S.idx++;
+  if(S.idx<S.rounds.length)renderRound(pick(REACT[tn]));
+  else finish();
+}
+
+/* ---------- Analysis ---------- */
+function analyze(ans){
+  const dims={},hits={};Object.keys(DIM).forEach(k=>{dims[k]=0;hits[k]=[]});
+  let pos=0,neg=0,charger=null;
+  ans.forEach(x=>{
+    if(x.skipped)return;
+    const s=norm(x.a),w=x.tag==='need'?2:1;let any=false;
+    for(const d in LEX){if(LEX[d].some(k=>has(s,k))){dims[d]+=w;hits[d].push(x);any=true}}
+    if(x.tag==='hear'){dims.self+=1;if(!hits.self.includes(x))hits.self.push(x)}
+    if(!any){if(x.tag==='want')dims.grow+=.5;if(x.tag==='burden'||x.tag==='job')dims.safety+=.4}
+    const t=tone(s,x.tag);if(t==='pos')pos++;if(t==='neg'||t==='crisis')neg++;
+    if(x.tag==='laugh')charger=x.a;
+  });
+  const sorted=Object.entries(dims).sort((a,b)=>b[1]-a[1]);
+  const top=sorted[0][1]>0?sorted[0][0]:'self',second=sorted[1][1]>0?sorted[1][0]:null;
+  const ratio=(pos+1)/(neg+1);
+  let wx;
+  if(S.crisis)wx={k:'storm',name:'Stormy',note:'A big storm is blowing through your heart right now. Please don’t face it alone — reach out for help.'};
+  else if(ratio>=2)wx={k:'sun',name:'Sunny',note:'Plenty of sunshine is reaching your heart. Protect the good rhythm you have now.'};
+  else if(ratio>=1.15)wx={k:'cloud',name:'Partly cloudy',note:'Mostly okay, with a few clouds on your mind.'};
+  else if(ratio>=.7)wx={k:'cloud2',name:'Overcast',note:'Good moments and heavy ones are mixed together. You’re a little worn out.'};
+  else wx={k:'rain',name:'Rainy',note:'It’s raining in your heart. Just holding on right now is already a real effort.'};
+  return {dims,hits,top,second,charger,wx,answered:ans.filter(x=>!x.skipped).length};
+}
+
+/* ---------- Result ---------- */
+function finish(){
+  S.result=analyze(S.answers);
+  const sess=store.get('mt5en.sessions',[]);
+  S.sessionId=Date.now();
+  sess.unshift(sessionRecord());store.set('mt5en.sessions',sess.slice(0,60));
+  renderResult();
+}
+function needKey(){return S.override||S.result.top}
+function sessionRecord(){
+  const k=needKey();
+  return {id:S.sessionId,date:new Date().toISOString(),name:profile.name,age:profile.age,gender:profile.gender,job:profile.job,
+    weather:S.result.wx.name,need:DIM[k],title:NEED[k].title,rx:NEED[k].rx,verified:S.verified,acts:NEED[k].acts,answers:S.answers.map(x=>({q:x.q,a:x.skipped?'(skipped)':x.a}))};
+}
+function updateSession(){const sess=store.get('mt5en.sessions',[]);const i=sess.findIndex(s=>s.id===S.sessionId);if(i>-1){sess[i]=sessionRecord();store.set('mt5en.sessions',sess)}}
+function resultText(){
+  const k=needKey(),N=NEED[k],R=S.result;
+  return `[5-Word Talk · Heart Talk] Results for ${profile.name} (${new Date().toLocaleDateString('en-US')})\nID ${profile.id}\n\nHeart weather: ${R.wx.name}\nWhat you need now: ${DIM[k]} — ${N.title}\nFive-word prescription: ${N.rx}\n\nThree things to try\n${N.acts.map((a,i)=>`${i+1}. ${a}`).join('\n')}\n\n${AGE_TIP[profile.age]}\n${JOB_TIP[profile.job]}\n\nMy five words\n${S.answers.map(x=>`${x.q} → ${x.skipped?'(skipped)':x.a}`).join('\n')}\n\n— 5-Word Talk · Heart Talk · © 2026 KOREA CONTENTS LAB. All rights reserved.\n${SITE}`;
+}
+const LEAF='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21v-8" stroke="#4f9b7c" stroke-width="2" stroke-linecap="round"/><path d="M12 13C12 8 9 5 3 5c0 5 3 8 9 8z" fill="#7cc4a4"/><path d="M12 12c0-4 3-7 9-7 0 5-3 7-9 7z" fill="#5fb79a"/></svg>';
+function renderResult(){
+  const R=S.result,k=needKey(),N=NEED[k],D=DIM[k].toLowerCase();
+  const ev=[...new Set(R.hits[k])].slice(0,2).map(x=>`‘${esc(x.a)}’`);
+  let why=ev.length?`You answered ${ev.join(' and ')}. Inside those five words, I see a sign that you need ${D}.`:`There weren’t many clear clues, but the flow of your answers suggests starting with ${D}.`;
+  if(S.override)why=`We went with your own choice. You know your heart best. For now, start with ${D}.`;
+  if(R.second&&R.second!==k)why+=` After that, take a look at ${DIM[R.second].toLowerCase()} too.`;
+  const charger=R.charger?`<p class="tip">‘${esc(R.charger)}’ is your charger. When things get hard, seek it out on purpose.</p>`:'';
+  const max=Math.max(1,...Object.values(R.dims));
+  const bars=Object.keys(DIM).map(d=>`<div class="bar ${d===k?'top':''}"><span>${DIM[d]}</span><span class="tr"><span class="fl" style="display:block;width:${Math.round(R.dims[d]/max*100)}%"></span></span><em>${Math.round(R.dims[d]/max*100)}</em></div>`).join('');
+  const crisis=S.crisis?`<div class="alert"><h3>First, something I really want you to know</h3><p>I noticed you may be hurting so much that you’ve thought about dying. There are people ready to listen right now, 24 hours a day.</p><p class="num">US: call or text 988</p><p class="num">UK &amp; Ireland: Samaritans 116 123</p><p class="num">Korea: 109</p><p>Anywhere else: findahelpline.com. If you’re in immediate danger, call your local emergency number.</p></div>`:'';
+  const kw=Object.keys(DIM).map(d=>`<span class="${d} ${R.dims[d]>0?'hit':''} ${d===k?'top':''}">${DIM[d]}</span>`).join('');
+  $('#s-result').innerHTML=`
+  ${crisis}
+  <div class="card verdict">
+    <span class="wxrow"><canvas id="wxc" width="16" height="16"></canvas>${esc(profile.name)}’s heart weather <b>${R.wx.name}</b></span>
+    <h2><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20c0-8 5-13 14-14-1 9-6 14-14 14z" fill="#7cc4a4"/><path d="M5 20c3-4 6-7 10-9" stroke="#4f9b7c" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><span>Today is a day for <em>${DIM[k]}</em></span></h2>
+    <p class="sub">${N.title} · ${R.wx.note}</p>
+    <p class="why">${why}</p>
+    ${charger}
+    <span class="eyebrow" style="margin-top:4px">Tori’s five-word prescription</span>
+    <div class="tiles rx">${words(N.rx).map((c,i)=>`<span class="tile" style="animation-delay:${200+i*90}ms">${esc(c)}</span>`).join('')}</div>
+  </div>
+  <div class="card">
+    <span class="sec">${LEAF}Three things to start today</span>
+    <ul class="todo">${N.acts.map((a,i)=>`<li><label><input type="checkbox" id="act${i}"><span>${a}</span></label></li>`).join('')}</ul>
+    <p class="tip">${AGE_TIP[profile.age]}</p>
+    <p class="tip">${JOB_TIP[profile.job]}</p>
+  </div>
+  <div class="card">
+    <span class="sec">${LEAF}My heart keywords</span>
+    <div class="kw">${kw}</div>
+    <div class="bars">${bars}</div>
+    <p class="muted">I sorted the clues from your ${R.answered} five-word answer${R.answered===1?'':'s'} into seven threads of the heart. The bold keywords are the feelings that showed up in your answers.</p>
+  </div>
+  <div class="card">
+    <span class="sec">${LEAF}Does this match how you feel?</span>
+    <div class="row" id="verRow">
+      <button class="primary" id="vYes" type="button">${S.verified?'Saved':'Yes, save it'}</button>
+      <button class="soft" id="vNo" type="button">I need something else</button>
+    </div>
+    <div class="chips pick" id="pick">${Object.keys(DIM).filter(d=>d!==k).map(d=>`<button type="button" class="chip" data-d="${d}">${DIM[d]} · ${NEED[d].title}</button>`).join('')}</div>
+  </div>
+  <div class="card">
+    <span class="sec">${LEAF}My five-word log</span>
+    <ul class="log">${S.answers.map(x=>`<li><span class="lq">${esc(x.q)}</span><span class="la">${x.skipped?'<span class="muted">Skipped</span>':esc(x.a)}</span></li>`).join('')}</ul>
+  </div>
+  <div class="card">
+    <span class="sec">${LEAF}Send to myself</span>
+    <p class="muted">Copy your results into your email or notes so you can look back on them later.</p>
+    <div class="field"><input type="email" id="mail" placeholder="My email address (optional)"><button class="soft" id="mailGo" type="button" style="font-size:15px;padding:8px 14px">Mail app</button></div>
+    <textarea class="copybox" id="copybox" readonly></textarea>
+    <button class="soft" id="copy" type="button">Copy results</button>
+    <p class="muted" id="mailNote">If your mail app doesn’t open, paste the copied text in yourself.</p>
+  </div>
+  <div class="row"><button class="primary" id="again" type="button">Play again <span class="arr">→</span></button><button class="soft" id="toHist" type="button">Past records</button></div>
+  <button class="ghost" id="toProf" type="button">Change character</button>`;
+  $('#copybox').value=resultText();
+  drawWx(R.wx.k);
+  $('#vYes').onclick=()=>{S.verified=true;updateSession();$('#vYes').textContent='Saved';chime();toast('Prescription saved')};
+  $('#vNo').onclick=()=>{$('#pick').classList.toggle('on')};
+  $('#pick').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;S.override=b.dataset.d;S.verified=true;updateSession();chime();renderResult();toast('Switched to your choice')};
+  $('#copy').onclick=async()=>{const t=$('#copybox').value;try{await navigator.clipboard.writeText(t);toast('Copied')}catch(e){const b=$('#copybox');b.focus();b.select();toast('Please copy the selected text')}};
+  $('#mailGo').onclick=()=>{
+    const to=$('#mail').value.trim();
+    const url=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent('My 5-Word Talk · Heart Talk results')}&body=${encodeURIComponent(resultText())}`;
+    const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();
+    $('#mailNote').textContent='Tried to open your mail app. If it didn’t open, copy the results and paste them in yourself.';
+  };
+  $('#again').onclick=startGame;
+  $('#toHist').onclick=renderHist;
+  $('#toProf').onclick=openProfile;
+  show('result');
+  setTimeout(()=>say(''),0);
+}
+function drawWx(kind){
+  const c=$('#wxc');if(!c)return;const x=c.getContext('2d');x.clearRect(0,0,16,16);
+  const R=(a,b,w,h,col)=>{x.fillStyle=col;x.fillRect(a,b,w,h)};
+  const sun=()=>{R(5,3,6,8,'#f2b84b');R(3,5,10,4,'#f2b84b');R(7,0,2,2,'#f2b84b');R(7,13,2,2,'#f2b84b');R(0,6,2,2,'#f2b84b');R(14,6,2,2,'#f2b84b')};
+  const cloud=(col)=>{R(3,8,11,4,col);R(5,6,5,2,col);R(9,5,3,3,col);R(2,9,1,2,col)};
+  if(kind==='sun')sun();
+  else if(kind==='cloud'){sun();cloud('#dfe4f2')}
+  else if(kind==='cloud2'){cloud('#a6aeca');R(1,10,6,3,'#8a92b0')}
+  else if(kind==='rain'){cloud('#8a92b0');[[4,13],[8,14],[12,13]].forEach(([a,b])=>R(a,b,1,2,'#8fd6c2'))}
+  else {cloud('#5a6185');R(8,12,2,2,'#ec8a6f');R(7,14,2,2,'#ec8a6f');[[3,13],[12,13]].forEach(([a,b])=>R(a,b,1,2,'#8fd6c2'))}
+}
+
+/* ---------- History ---------- */
+function renderHist(){
+  const sess=store.get('mt5en.sessions',[]);
+  const head=profile.id?`<div class="card"><div class="idcard"><div><span class="eyebrow">My unique ID</span><div class="id">${profile.id}</div><p class="muted">${esc(profile.name)} · ${profile.gender} · ${profile.age}s · ${profile.job}</p></div>
+    <div class="stats"><span><b>${visits}</b>Visits</span><span><b>${sess.length}</b>Sessions</span><span><b>${sess.filter(s=>s.verified).length}</b>Confirmed</span></div></div></div>`:
+    `<div class="card"><p>You don’t have a character yet. Tap Start and you’ll get a unique ID.</p></div>`;
+  const list=sess.length?sess.map((s,i)=>{const d=new Date(s.date);
+    return `<details class="sess" ${i===0?'open':''}><summary><span>${d.toLocaleDateString('en-US')} ${d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})} · ${esc(s.weather)}</span><b>${esc(s.need)} · ${esc(s.rx)}${s.verified?' ✓':''}</b></summary>
+    <div class="inner"><p class="muted" style="margin-bottom:6px">${esc(s.title||'')}</p>${s.acts?`<ul class="log" style="margin-bottom:8px">${s.acts.map(a=>`<li style="grid-template-columns:1fr"><span>${esc(a)}</span></li>`).join('')}</ul>`:''}<ul class="log">${s.answers.map(x=>`<li><span class="lq">${esc(x.q)}</span><span class="la">${esc(x.a)}</span></li>`).join('')}</ul></div></details>`}).join(''):
+    `<div class="card"><p class="muted">No records yet. After your first session, they’ll stack up here by date.</p></div>`;
+  $('#s-hist').innerHTML=`${head}<div class="screen" style="gap:10px"><span class="lbl">Past sessions</span>${list}</div>
+  <p class="muted">Records are saved only in this browser on this device. To see them on another device, copy them from the results screen and email them to yourself.</p>
+  <div class="row"><button class="primary" id="hStart" type="button">${profile.id?'New session':'Start'}</button><button class="ghost" id="hBack" type="button">Home</button></div>`;
+  $('#hStart').onclick=()=>{if(!soundOn&&store.get('mt5en.sound',true)!==false)setSound(true);profile.id?startGame():openProfile()};
+  $('#hBack').onclick=renderTitle;
+  show('hist');
+}
+
+/* ---------- Copyright notice ---------- */
+let backTo='title';
+$('#legalOpen').onclick=()=>{if(S.screen!=='legal')backTo=S.screen;show('legal')};
+$('#legalBack').onclick=()=>{
+  if(backTo==='title')renderTitle();
+  else if(backTo==='hist')renderHist();
+  else show(backTo);
+};
+$('#lmailCopy').onclick=async()=>{try{await navigator.clipboard.writeText('2025koreacl@gmail.com');toast('Email address copied')}catch(e){const r=document.createRange();r.selectNodeContents($('#lmail'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Please copy the selected address')}};
+try{console.info('%c5-Word Talk · Heart Talk © 2026 KOREA CONTENTS LAB. All rights reserved.\nNo unauthorized copying, distribution or adaptation. (Copyright Act of the Republic of Korea)','color:#f2b84b;font-weight:bold')}catch(e){}
+
+renderTitle();
+})();
+</script>
+</body>
+</html>
